@@ -34,16 +34,6 @@ st.markdown("""
         margin: auto !important;
     }
 
-    /* CSS para sa logo at title na magkatabi sa kanan at halos dikit */
-    .header-flex-container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 12px;
-        margin-top: 5px;
-        margin-bottom: 0px;
-    }
-
     div.stButton > button {
         background-color: #004080 !important;
         color: white !important;
@@ -61,23 +51,16 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- PAMAGAT SA KALIWA AT LOGO SA KANANG BAHAGI NA HALOS DIKIT ---
-st.markdown("""
-    <div class="header-flex-container">
-        <h1 style='color: white; font-size: 23px; font-weight: bold; margin: 0;'>🛒 DELA CRUZ STORE INVENTORY MANAGEMENT SYSTEM</h1>
-        <img src="app/static/ge.png" width="65" style="border-radius: 4px;">
-    </div>
-""", unsafe_allow_html=True)
+# --- PAMAGAT SA KALIWA AT MALAKING LOGO SA KANAN SA IISANG LINE ---
+col_title, col_logo = st.columns([0.78, 0.22], gap="small")
 
-# Alternatibong Streamlit native block para sa mga system na direktang naglo-load ng file sa local folder:
-col_title, col_logo = st.columns([0.82, 0.18], gap="small")
 with col_title:
-    pass # Nakapwesto na sa taas ang HTML, pwede mo ring gamitin ito kung nais mo ng dalawang columns.
+    st.markdown("<h1 style='color: white; font-size: 23px; font-weight: bold; margin-top: 15px;'>🛒 DELA CRUZ STORE INVENTORY MANAGEMENT SYSTEM</h1>", unsafe_allow_html=True)
+
 with col_logo:
     try:
-        # Kung sakaling mas gusto mong gamitin ang st.image sa kanan:
-        # st.image("ge.png", width=65)
-        pass
+        # Pinalaki ang logo sa kanang bahagi
+        st.image("ge.png", width=120)
     except:
         pass
 
