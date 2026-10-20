@@ -185,7 +185,8 @@ else:
         st.markdown("### Latest Products")
         if products:
             df_latest = pd.DataFrame(products, columns=["ID", "Name", "Brand", "Category", "Quantity", "Price", "Expiry", "Date Added"])
-            st.dataframe(df_latest[["Name", "Brand", "Quantity", "DateAdded"]].tail(5), use_container_width=True, hide_index=True)
+            # Dito naayos ang KeyError sa pamamagitan ng paggamit ng "Date Added" na may space
+            st.dataframe(df_latest[["Name", "Brand", "Quantity", "Date Added"]].tail(5), use_container_width=True, hide_index=True)
         else:
             st.info("No products recorded yet.")
 
