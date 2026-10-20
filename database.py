@@ -15,7 +15,7 @@ def init_db():
     conn = get_connection()
     cursor = conn.cursor()
 
-    # User Table (UML Class: User)
+    # User Table
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS User (
             userID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -49,7 +49,7 @@ def init_db():
         )
     """)
 
-    # Product Table (UML Class: Product with expiryDate & lowStockLevel)[cite: 2]
+    # Product Table
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS Product (
             productID VARCHAR(40) PRIMARY KEY,
@@ -67,7 +67,7 @@ def init_db():
         )
     """)
 
-    # Sales Table (UML Class: Sales)[cite: 2]
+    # Sales Table
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS Sales (
             saleID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -79,7 +79,7 @@ def init_db():
         )
     """)
 
-    # SaleItem Table (UML Class: SaleItem)[cite: 2]
+    # SaleItem Table
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS SaleItem (
             saletItemID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -93,7 +93,7 @@ def init_db():
         )
     """)
 
-    # Settings Table (Store Information)
+    # Settings Table
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS Settings (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -111,13 +111,13 @@ def init_db():
         cursor.execute("INSERT INTO User (username, password, role, name) VALUES (?, ?, ?, ?)", 
                        ("staff", hash_password("staff123"), "Staff", "Store Staff"))
 
-    # Default Store Settings (Quirino Highway, Quezon City)[cite: 2]
+    # Default Store Settings[cite: 2]
     cursor.execute("SELECT COUNT(*) FROM Settings")
     if cursor.fetchone()[0] == 0:
         cursor.execute("INSERT INTO Settings (storeName, address, contact) VALUES (?, ?, ?)",
                        ("Dela Cruz Sari-Sari Store", "1071 Brgy. Kaligayahan, Quirino Highway, Quezon City, Metro Manila", "09123456789"))
 
-    # Default Categories & Products seed if empty
+    # Default Categories
     cursor.execute("SELECT COUNT(*) FROM Category")
     if cursor.fetchone()[0] == 0:
         cursor.executemany("INSERT INTO Category (name, description) VALUES (?, ?)", [
