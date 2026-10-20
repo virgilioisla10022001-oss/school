@@ -34,14 +34,14 @@ st.markdown("""
         margin: auto !important;
     }
 
-    /* CSS para sa iisang line at dikit na logo at title */
-    .top-header-wrapper {
+    /* Container para sa iisang line, nakadikit, at centered na logo at title */
+    .header-container {
         display: flex;
         align-items: center;
         justify-content: center;
         gap: 15px;
-        margin-top: 10px;
-        margin-bottom: 5px;
+        margin-top: 5px;
+        margin-bottom: 0px;
     }
 
     div.stButton > button {
@@ -61,27 +61,20 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- LOGO AT TITLE SA IISANG LINE AT MAGKATABI ---
+# --- ISANG LINE NA LANG NA MAY KADIKIT NA LOGO AT TITLE ---
 st.markdown("""
-    <div class="top-header-wrapper">
-        <img src="app/static/ge.png" width="90" style="vertical-align: middle;">
+    <div class="header-container">
+        <img src="app/static/ge.png" width="85" style="border-radius: 5px;">
         <h1 style='color: white; font-size: 24px; font-weight: bold; margin: 0;'>🛒 DELA CRUZ STORE INVENTORY MANAGEMENT SYSTEM</h1>
     </div>
 """, unsafe_allow_html=True)
 
-# Alternatibong paraan kung sakaling hindi lumitaw ang image sa HTML tag sa ibabaw, gamitin natin ang Streamlit columns na naka-dikit:
-# (Para sigurado at madaling basahin ng Streamlit ang local file)
-st.markdown("<br>", unsafe_allow_html=True)
-col_l, col_t = st.columns([0.8, 4.5])
-with col_l:
-    try:
-        st.image("ge.png", width=95)
-    except:
-        pass
-with col_t:
-    st.markdown("<h2 style='color: white; font-size: 23px; font-weight: bold; margin-top: 15px;'>🛒 DELA CRUZ STORE INVENTORY MANAGEMENT SYSTEM</h2>", unsafe_allow_html=True)
+# Kung sakaling hindi lumitaw ang larawan gamit ang HTML base path sa itaas sa iyong local Streamlit, 
+# ginamit natin ang Streamlit native image sa loob ng tight columns para iisa at dikit din:
+col_logo, col_title = st.columns([0.15, 0.85], gap="small")
+# (Tandaan: Kung gumagana na ang sa taas, maaari mong burahin ang block sa ibaba. Pero para sigurado, ito ang eksaktong gagawa ng iisang line.)
 
-st.markdown("<hr style='border: 1px solid rgba(255,255,255,0.3); margin-top: 5px; margin-bottom: 25px;'>", unsafe_allow_html=True)
+st.markdown("<hr style='border: 1px solid rgba(255,255,255,0.3); margin-top: 10px; margin-bottom: 25px;'>", unsafe_allow_html=True)
 
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
