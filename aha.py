@@ -108,17 +108,17 @@ if not st.session_state.logged_in:
                 st.session_state.page = "login"
                 st.rerun()
 
-    # 2. LOGIN PAGE (Centered Stacked Layout)
+    # 2. LOGIN PAGE (Centered Stacked Layout with Large Logo)
     else:
         _, center_col, _ = st.columns([1.5, 1.2, 1.5])
         with center_col:
-            # Logo Center
+            # Pinalaki ang logo sa pamamagitan ng pagtaas ng width (halimbawa ay 280)
             try:
-                col_l, col_m, col_r = st.columns([1, 2, 1])
+                col_l, col_m, col_r = st.columns([0.5, 3, 0.5])
                 with col_m:
-                    st.image("ge.png", width=180)
+                    st.image("ge.png", width=280)
             except:
-                st.markdown("<div style='text-align: center; font-size: 60px; margin-bottom: 10px;'>👤</div>", unsafe_allow_html=True)
+                st.markdown("<div style='text-align: center; font-size: 70px; margin-bottom: 10px;'>👤</div>", unsafe_allow_html=True)
 
             st.markdown("<h3 style='text-align: center; color: white; font-weight: bold; margin-top: 10px; margin-bottom: 20px;'>USER LOGIN</h3>", unsafe_allow_html=True)
 
