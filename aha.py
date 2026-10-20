@@ -115,7 +115,7 @@ if not st.session_state.logged_in:
         try:
             col1, col2, col3 = st.columns([0.2, 0.6, 0.2])
             with col2:
-                st.image("ge.png", width=250)
+                st.image("ge.png", width=700)
         except:
             st.markdown("<div style='text-align: center; font-size: 60px; margin-bottom: 10px;'>👤</div>", unsafe_allow_html=True)
 
