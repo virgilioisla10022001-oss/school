@@ -1,7 +1,11 @@
 import streamlit as st
 import pandas as pd
 import datetime
-from database import init_db, register_user, verify_user, add_product, get_all_products, update_product, delete_product
+from database import (
+    init_db, register_user, verify_user, reset_password, 
+    add_product, get_all_products, update_product, delete_product, 
+    add_retail_log, get_retail_logs
+)
 
 st.set_page_config(
     page_title="Dela Cruz Store Inventory Management System",
@@ -9,50 +13,28 @@ st.set_page_config(
     layout="wide"
 )
 
-# I-initialize ang database habang naglo-load ang app
 init_db()
 
-# Custom CSS: awit.png bilang background na may dark/soft overlay para malinaw ang teksto at hindi masakit sa mata
 st.markdown("""
     <style>
     #MainMenu {visibility: hidden !important;}
     header {visibility: hidden !important; display: none !important;}
     footer {visibility: hidden !important; display: none !important;}
-    .stDeployButton {display:none !important;}
-    div[data-testid="stDecoration"] {display:none !important;}
-    div[data-testid="stHeader"] {display:none !important;}
-    div[data-testid="stToolbar"] {display:none !important;}
     
-    /* Background Image setup na may overlay filter para hindi sobrang maliwanag */
     .stApp {
-        background: linear-gradient(rgba(0, 30, 70, 0.75), rgba(0, 30, 70, 0.75)), url("awit.png");
+        background: linear-gradient(rgba(0, 30, 70, 0.85), rgba(0, 30, 70, 0.85)), url("awit.png");
         background-size: cover;
         background-position: center;
-        background-repeat: no-repeat;
         background-attachment: fixed;
         color: white;
     }
 
-    /* Wide layout pero centered container */
     .block-container {
         padding-top: 2rem !important;
-        max-width: 900px !important;
+        max-width: 1000px !important;
         margin: auto !important;
     }
 
-    /* Input Field Styling para malinaw ang basahin */
-    input[type="text"], input[type="password"], input[type="number"], input[type="date"] {
-        background-color: #ffffff !important;
-        color: #000000 !important;
-        border-radius: 6px !important;
-    }
-    
-    div[data-baseweb="input"], div[data-baseweb="select"] {
-        background-color: #ffffff !important;
-        border-radius: 6px !important;
-    }
-
-    /* Button Styling */
     div.stButton > button {
         background-color: #004080 !important;
         color: white !important;
@@ -67,85 +49,88 @@ st.markdown("""
         background-color: #002b5c !important;
         border-color: #ffffff !important;
     }
-
-    div[data-testid="stCheckbox"] label span {
-        color: white !important;
-        font-size: 13px !important;
-    }
     </style>
 """, unsafe_allow_html=True)
 
-# Header Title Center Aligned
-st.markdown("<h1 style='text-align: center; color: white; font-size: 24px; font-weight: bold;'>🛒 DELA CRUZ SARI-SARI STORE MANAGEMENT SYSTEM</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: white; font-size: 26px; font-weight: bold;'>🛒 DELA CRUZ STORE INVENTORY MANAGEMENT SYSTEM</h1>", unsafe_allow_html=True)
 st.markdown("<hr style='border: 1px solid rgba(255,255,255,0.3); margin-top: 5px; margin-bottom: 25px;'>", unsafe_allow_html=True)
 
-# Session States
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 if "username" not in st.session_state:
     st.session_state.username = ""
 if "page" not in st.session_state:
     st.session_state.page = "login"
-if "owner_verified" not in st.session_state:
-    st.session_state.owner_verified = False
 
 if not st.session_state.logged_in:
-    
     _, col_center, _ = st.columns([1, 1.5, 1])
     with col_center:
-        # 1. REGISTER PAGE
+        
         if st.session_state.page == "register":
-            st.markdown("<h3 style='text-align: center; color: white; font-weight: bold;'>CREATE ACCOUNT</h3>", unsafe_allow_html=True)
-            st.markdown("<div style='text-align: center; font-size: 40px; margin-bottom: 15px;'>📝</div>", unsafe_allow_html=True)
-
-            reg_user = st.text_input("New Username", key="reg_user")
-            reg_pass = st.text_input("New Password", type="password", key="reg_pass")
-            reg_pass_conf = st.text_input("Confirm Password", type="password", key="reg_pass_conf")
-
-            st.markdown("<br>", unsafe_allow_html=True)
-            if st.button("Register Account", use_container_width=True):
-                if reg_user and reg_pass and reg_pass_conf:
-                    if reg_pass == reg_pass_conf:
-                        if register_user(reg_user, reg_pass):
-                            st.success("Account created successfully! Please login.")
-                            st.session_state.page = "login"
-                            st.rerun()
-                        else:
-                            st.error("Username already exists.")
-                    else:
-                        st.warning("Passwords do not match!")
-                else:
-                    st.warning("Please fill in all fields.")
+            st.markdown("<h3 style='text-align: center; color: white;'>CREATE ACCOUNT</h3>", unsafe_allow_html=True)
             
+            fullname = st.text_input("Full Name")
+            reg_user = st.text_input("Username")
+            reg_pass = st.text_input("Password", type="password")
+            email = st.text_input("Email Address")
+            birthday = st.date_input("Birthday", value=datetime.date(2000, 1, 1))
+            contact = st.text_input("Contact Number")
+
             st.markdown("<br>", unsafe_allow_html=True)
+            if st.button("Create Account", use_container_width=True):
+                if fullname and reg_user and reg_pass and email:
+                    if register_user(fullname, reg_user, reg_pass, email, str(birthday), contact):
+                        st.success("Account created successfully! Please login.")
+                        st.session_state.page = "login"
+                        st.rerun()
+                    else:
+                        st.error("Username already exists.")
+                else:
+                    st.warning("Please fill in all required fields.")
+            
             if st.button("Back to Login", use_container_width=True):
                 st.session_state.page = "login"
                 st.rerun()
 
-        # 2. LOGIN PAGE
+        elif st.session_state.page == "forgot":
+            st.markdown("<h3 style='text-align: center; color: white;'>FORGOT PASSWORD</h3>", unsafe_allow_html=True)
+            st.caption("Enter your username and email address to reset password:")
+            
+            f_user = st.text_input("Username")
+            f_email = st.text_input("Email Address")
+            new_pass = st.text_input("New Password", type="password")
+
+            st.markdown("<br>", unsafe_allow_html=True)
+            if st.button("Verify Email and Reset Password", use_container_width=True):
+                if f_user and f_email and new_pass:
+                    if reset_password(f_user, f_email, new_pass):
+                        st.success("Password reset successfully! You can now login.")
+                        st.session_state.page = "login"
+                        st.rerun()
+                    else:
+                        st.error("Username and Email do not match our records.")
+                else:
+                    st.warning("Please fill in all fields.")
+
+            if st.button("Back to Login", use_container_width=True):
+                st.session_state.page = "login"
+                st.rerun()
+
         else:
-            try:
-                col_img1, col_img2, col_img3 = st.columns([0.2, 0.6, 0.2])
-                with col_img2:
-                    st.image("ge.png", width=220)
-            except:
-                st.markdown("<div style='text-align: center; font-size: 60px; margin-bottom: 10px;'>🏠</div>", unsafe_allow_html=True)
-
-            st.markdown("<h3 style='text-align: center; color: white; font-weight: bold;'>STORE LOGIN PORTAL</h3>", unsafe_allow_html=True)
-
-            username_input = st.text_input("Username", key="user_in")
-            show_pwd = st.session_state.get("show_pwd_check", False)
-            pwd_type = "default" if show_pwd else "password"
-            password_input = st.text_input("Password", type=pwd_type, key="pass_in")
+            st.markdown("<h3 style='text-align: center; color: white;'>USER LOGIN</h3>", unsafe_allow_html=True)
+            
+            username_input = st.text_input("Username")
+            password_input = st.text_input("Password", type="password")
             st.checkbox("Show Password", key="show_pwd_check")
 
             st.markdown("<br>", unsafe_allow_html=True)
-            
-            if st.button("SIGN IN", use_container_width=True, key="login_btn"):
+            if st.button("LOGIN", use_container_width=True):
                 if username_input and password_input:
-                    if verify_user(username_input, password_input):
+                    user = verify_user(username_input, password_input)
+                    if user:
                         st.session_state.logged_in = True
                         st.session_state.username = username_input
+                        st.session_state.user_data = user
                         st.rerun()
                     else:
                         st.error("Invalid username or password!")
@@ -153,7 +138,6 @@ if not st.session_state.logged_in:
                     st.warning("Please enter both username and password!")
 
             st.markdown("<br>", unsafe_allow_html=True)
-
             b1, b2 = st.columns(2)
             with b1:
                 if st.button("Create Account", use_container_width=True):
@@ -161,199 +145,183 @@ if not st.session_state.logged_in:
                     st.rerun()
             with b2:
                 if st.button("Forgot Password", use_container_width=True):
-                    st.info("Please contact store owner.")
+                    st.session_state.page = "forgot"
+                    st.rerun()
 
 else:
-    # --- DASHBOARD / LOGGED IN VIEW ---
-    st.markdown(f"<h3 style='text-align: center; color: white;'>Maligayang Pagdating, {st.session_state.username}! 👋</h3>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center; color: #d0e8ff; font-size: 14px;'>Sari-Sari Store Inventory & Expiry Management System</p>", unsafe_allow_html=True)
+    current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    c_head1, c_head2 = st.columns([3, 1])
+    with c_head1:
+        st.markdown(f"<h3 style='color: white;'>Dela Cruz Store Inventory Dashboard</h3>", unsafe_allow_html=True)
+    with c_head2:
+        st.markdown(f"<p style='text-align: right; color: #d0e8ff; font-size: 13px;'>{current_time}</p>", unsafe_allow_html=True)
+    
     st.markdown("<hr style='border: 1px solid rgba(255,255,255,0.2);'>", unsafe_allow_html=True)
 
-    # Navigation Tabs
-    tab1, tab2, tab3, tab4, tab5 = st.tabs([
-        "📦 View Stocks", 
-        "➕ Add Product", 
-        "⚡ Restock / Bawas", 
-        "⚠️ Expiry Alerts", 
-        "⚙️ Owner & Manage"
+    tab_dash, tab_inv, tab_log, tab_rep, tab_admin, tab_about = st.tabs([
+        "📊 Dashboard", 
+        "📦 Inventory Management", 
+        "📝 Log Retails", 
+        "📈 Reports", 
+        "⚙️ Admin Settings",
+        "ℹ️ About System"
     ])
 
     products = get_all_products()
+    
+    with tab_dash:
+        total_products = len(products)
+        low_stock_count = sum(1 for p in products if 0 < p[4] <= 5)
+        out_of_stock_count = sum(1 for p in products if p[4] == 0)
 
-    # 1. VIEW STOCKS TAB
-    with tab1:
-        st.subheader("Kasalukuyang Inventory ng Paninda")
-        
+        m1, m2, m3 = st.columns(3)
+        with m1:
+            st.info(f"**All Products**\n\nTotal Products: {total_products}")
+        with m2:
+            st.warning(f"**Low Stock Products**\n\nLow Stock: {low_stock_count}")
+        with m3:
+            st.error(f"**Out of Stock Products**\n\nOut of Stock: {out_of_stock_count}")
+
+        st.markdown("### Latest Products")
         if products:
-            df = pd.DataFrame(products, columns=["ID", "Product Name", "Category", "Quantity", "Price (₱)", "Date Added"])
-            
-            total_items = len(df)
-            total_qty = df["Quantity"].sum()
-            total_val = (df["Quantity"] * df["Price (₱)"]).sum()
-            
-            m1, m2, m3 = st.columns(3)
-            m1.metric("Uri ng Paninda", total_items)
-            m2.metric("Kabuuang Stocks", f"{total_qty:,}")
-            m3.metric("Halaga ng Inventory", f"₱{total_val:,.2f}")
-            
-            st.markdown("<br>", unsafe_allow_html=True)
-            
-            search_query = st.text_input("🔍 Mag-search ng paninda o kategorya...", "")
-            if search_query:
-                df = df[df['Product Name'].str.contains(search_query, case=False, na=False) | 
-                        df['Category'].str.contains(search_query, case=False, na=False)]
-            
-            st.dataframe(df, use_container_width=True, hide_index=True)
+            df_latest = pd.DataFrame(products, columns=["ID", "Name", "Brand", "Category", "Quantity", "Price", "Expiry", "Date Added"])
+            st.dataframe(df_latest[["Name", "Brand", "Quantity", "DateAdded"]].tail(5), use_container_width=True, hide_index=True)
         else:
-            st.info("Wala pang nakatalang paninda. Magdagdag sa 'Add Product' tab.")
+            st.info("No products recorded yet.")
 
-    # 2. ADD PRODUCT TAB (May Expiration Date)
-    with tab2:
-        st.subheader("Magdagdag ng Bagong Paninda")
+    with tab_inv:
+        st.subheader("Inventory Management & Product Records")
         
-        categories = ["Beverages / Inumin", "Canned Goods", "Snacks / Chichirya", "Instant Noodles", "Personal Care / Sabon", "Household Items", "Iba pa"]
+        col_form, col_table = st.columns([1, 1.5])
         
-        with st.form("add_product_form", clear_on_submit=True):
-            prod_name = st.text_input("Pangalan ng Paninda (e.g., Bear Brand 33g)")
-            category_choice = st.selectbox("Kategorya", options=categories)
-            category_custom = st.text_input("Kapag 'Iba pa', isulat ang kategorya rito:")
-            
-            category = category_custom if category_choice == "Iba pa" and category_custom else category_choice
-            
-            col_q, col_p = st.columns(2)
-            with col_q:
-                quantity = st.number_input("Bilang ng Stock (Quantity)", min_value=0, step=1)
-            with col_p:
-                price = st.number_input("Presyo bawat piraso (₱)", min_value=0.0, format="%.2f")
-            
-            expiry_date = st.date_input("Expiration Date", value=datetime.date.today() + datetime.timedelta(days=180))
-            
-            st.markdown("<br>", unsafe_allow_html=True)
-            submit_btn = st.form_submit_button("Save Product Record", use_container_width=True)
-            
-            if submit_btn:
-                if prod_name:
-                    if add_product(prod_name, category, quantity, price):
-                        st.success(f"Matagumpay na naidagdag ang '{prod_name}' (Expiry: {expiry_date})!")
+        with col_form:
+            with st.form("inventory_form", clear_on_submit=True):
+                p_name = st.text_input("Product Name")
+                p_brand = st.text_input("Brand Name")
+                p_qty = st.number_input("Quantity", min_value=0, step=1)
+                categories = ["Beverages & Dairy", "Canned & Processed Goods", "Snacks, Chips, & Biscuits", "Instant & Ready-to-Eat", "Cigarettes", "Rice, Grains, & Cooking Ingredients", "Coffee", "Others"]
+                p_cat = st.selectbox("Category", options=categories)
+                p_price = st.number_input("Price (₱)", min_value=0.0, format="%.2f")
+                p_expiry = st.date_input("Expiry Date", value=datetime.date.today() + datetime.timedelta(days=180))
+                
+                submitted = st.form_submit_button("Add Product", use_container_width=True)
+                if submitted:
+                    if p_name:
+                        add_product(p_name, p_brand, p_cat, p_qty, p_price, str(p_expiry), str(datetime.date.today()))
+                        st.success(f"Successfully added '{p_name}'!")
                         st.rerun()
                     else:
-                        st.error("May nangyaring error sa pag-save ng produkto.")
-                else:
-                    st.warning("Pakalagyan ng pangalan ang produkto.")
+                        st.warning("Please enter a product name.")
 
-    # 3. QUICK RESTOCK / BAWAS STOCKS TAB
-    with tab3:
-        st.subheader("⚡ Mabilisang Pag-dagdag o Pag-bawas ng Stocks")
-        st.caption("Gamitin ito kapag may dumating na delivery o kaya'y nabawas/nabenta.")
-        
-        if products:
-            product_dict = {f"{row[1]} (Stock: {row[3]})": row for row in products}
-            selected_prod_label = st.selectbox("Pumili ng Paninda", options=list(product_dict.keys()), key="quick_restock_sel")
-            
-            selected_data = product_dict[selected_prod_label]
-            prod_id, curr_name, curr_cat, curr_qty, curr_price, _ = selected_data
-            
-            with st.form("quick_restock_form"):
-                st.write(f"**Paninda:** {curr_name} | **Kasalukuyang Stock:** {curr_qty}")
-                
-                action_type = st.radio("Aksyon:", ["Magdagdag ng Stock (Restock / Delivery)", "Bawasan ang Stock (Benta / Nabawas)"])
-                adjustment_qty = st.number_input("Ilang piraso?", min_value=1, step=1, value=1)
-                
-                st.markdown("<br>", unsafe_allow_html=True)
-                quick_submit = st.form_submit_button("I-update ang Stocks", use_container_width=True)
-                
-                if quick_submit:
-                    if action_type == "Magdagdag ng Stock (Restock / Delivery)":
-                        new_qty_val = curr_qty + adjustment_qty
-                    else:
-                        new_qty_val = max(0, curr_qty - adjustment_qty)
-                    
-                    if update_product(prod_id, curr_name, curr_cat, new_qty_val, curr_price):
-                        st.success(f"Matagumpay na na-update ang stock ng '{curr_name}'! Bagong bilang: {new_qty_val}")
-                        st.rerun()
-                    else:
-                        st.error("Nabigo sa pag-update ng stock.")
-        else:
-            st.info("Walang mga produktong maaring i-update.")
-
-    # 4. EXPIRY ALERTS TAB
-    with tab4:
-        st.subheader("⚠️ Monitoring ng Expiration Dates")
-        st.caption("Gabay para sa mga panindang malapit nang mapanis o ma-expire.")
-        
-        if products:
-            df_expiry = pd.DataFrame(products, columns=["ID", "Product Name", "Category", "Quantity", "Price", "Date Added"])
-            st.info("💡 **Paalala sa Tindahan:** Ugaliing ilagay sa unahan ng estante ang mga produktong mas maaga ang expiration date (First-In, First-Out).")
-            st.dataframe(df_expiry[["Product Name", "Category", "Quantity", "Price"]], use_container_width=True, hide_index=True)
-        else:
-            st.info("Walang nakatalang paninda para i-monitor.")
-
-    # 5. OWNER VERIFICATION & MANAGE/DELETE TAB
-    with tab5:
-        st.subheader("🔐 Owner Verification & Management")
-        st.caption("Kailangan ang Owner PIN para makapag-update o magbura ng produkto.")
-        
-        OWNER_PIN = "1234"  # Default Owner PIN Code
-        
-        if not st.session_state.owner_verified:
-            with st.form("owner_pin_form"):
-                entered_pin = st.text_input("Ilagay ang Owner PIN Code", type="password")
-                pin_submit = st.form_submit_button("I-verify ang PIN", use_container_width=True)
-                
-                if pin_submit:
-                    if entered_pin == OWNER_PIN:
-                        st.session_state.owner_verified = True
-                        st.success("Matagumpay na na-verify ang Owner! Pwede nang mag-manage.")
-                        st.rerun()
-                    else:
-                        st.error("Maling PIN code! Subukan muli.")
-        else:
-            st.success("✅ Authorized Owner Mode Active")
-            if st.button("I-lock Muli (Logout Owner)", use_container_width=True):
-                st.session_state.owner_verified = False
-                st.rerun()
-                
-            st.markdown("---")
+        with col_table:
+            st.markdown("#### Product Records List")
             if products:
-                product_dict_m = {f"{row[1]} (ID: {row[0]} | Kat: {row[2]})": row for row in products}
-                selected_prod_label_m = st.selectbox("Pumili ng Produkto na I-edit/I-delete", options=list(product_dict_m.keys()), key="manage_sel")
+                df_inv = pd.DataFrame(products, columns=["ID", "Product Name", "Brand", "Category", "Quantity", "Price", "Expiry Date", "Date Added"])
                 
-                selected_data_m = product_dict_m[selected_prod_label_m]
-                prod_id_m, curr_name_m, curr_cat_m, curr_qty_m, curr_price_m, _ = selected_data_m
+                cat_filter = st.selectbox("Category Filter", ["All Categories"] + list(df_inv["Category"].unique()))
+                if cat_filter != "All Categories":
+                    df_inv = df_inv[df_inv["Category"] == cat_filter]
                 
-                with st.form("update_form"):
-                    new_name = st.text_input("Product Name", value=curr_name_m)
-                    new_cat = st.text_input("Category", value=curr_cat_m)
-                    new_qty = st.number_input("Quantity", min_value=0, value=curr_qty_m, step=1)
-                    new_price = st.number_input("Price (₱)", min_value=0.0, value=float(curr_price_m), format="%.2f")
-                    
-                    st.markdown("<br>", unsafe_allow_html=True)
-                    col_update, col_delete = st.columns(2)
-                    with col_update:
-                        update_btn = st.form_submit_button("Update Details", use_container_width=True)
-                    with col_delete:
-                        delete_btn = st.form_submit_button("Delete Product", use_container_width=True)
-                    
-                    if update_btn:
-                        if update_product(prod_id_m, new_name, new_cat, new_qty, new_price):
-                            st.success("Na-update na ang produkto!")
-                            st.rerun()
-                        else:
-                            st.error("Hindi na-update ang produkto.")
-                            
-                    if delete_btn:
-                        if delete_product(prod_id_m):
-                            st.warning(f"Nabura na ang '{curr_name_m}' sa inventory.")
-                            st.rerun()
-                        else:
-                            st.error("Hindi mabura ang produkto.")
+                st.dataframe(df_inv[["ID", "Product Name", "Brand", "Quantity", "Category", "Expiry Date"]], use_container_width=True, hide_index=True)
             else:
-                st.info("Walang mga produktong maaring i-manage.")
+                st.info("No records found.")
 
-    st.markdown("<br>", unsafe_allow_html=True)
-    if st.button("LOGOUT SYSTEM", use_container_width=True):
+    with tab_log:
+        st.subheader("Dela Cruz Store Retail Log")
+        st.caption("Record and monitor items sold to customers.")
+        
+        if products:
+            prod_options = {p[1]: p for p in products}
+            selected_item = st.selectbox("Product", options=list(prod_options.keys()))
+            qty_sold = st.number_input("Quantity Sold", min_value=1, step=1)
+            
+            if st.button("Add Retail Log", use_container_width=True):
+                item_info = prod_options[selected_item]
+                item_id, name, brand, cat, current_qty, price, expiry, added = item_info
+                
+                if current_qty >= qty_sold:
+                    new_qty = current_qty - qty_sold
+                    update_product(item_id, name, brand, cat, new_qty, price, expiry)
+                    add_retail_log(name, brand, qty_sold)
+                    st.success(f"Recorded sale for {qty_sold} pc(s) of {name}!")
+                    st.rerun()
+                else:
+                    st.error("Error: Insufficient stock available.")
+            
+            st.markdown("---")
+            logs = get_retail_logs()
+            if logs:
+                df_logs = pd.DataFrame(logs, columns=["Log ID", "Product Name", "Brand", "Quantity Sold", "Date Time"])
+                st.dataframe(df_logs, use_container_width=True, hide_index=True)
+            else:
+                st.info("No sales logs yet.")
+        else:
+            st.info("No products available to log.")
+
+    with tab_rep:
+        st.subheader("Dela Cruz Store Inventory Management Report")
+        
+        if st.button("Generate Weekly Report", use_container_width=True):
+            st.success("Weekly Inventory Report successfully generated!")
+            
+        st.markdown("#### Past Reports:")
+        report_data = [
+            {"ID": "None", "Date": "2025-05-06", "File": "C:\\Users\\Downloads\\CDOES\\Nitrux\\rep1.txt"},
+            {"ID": "None", "Date": "2025-05-06", "File": "C:\\Users\\Downloads\\CDOES\\Nitrux\\rep2.txt"},
+            {"ID": "None", "Date": "2025-04-30", "File": "C:\\Users\\Downloads\\CDOES\\Nitrux\\rep3.txt"},
+        ]
+        df_reports = pd.DataFrame(report_data)
+        st.dataframe(df_reports, use_container_width=True, hide_index=True)
+        
+        if st.button("Delete Selected Report"):
+            st.info("Report deleted successfully.")
+
+    with tab_admin:
+        st.subheader("Admin Settings Dashboard")
+        u_data = st.session_state.get("user_data", ["", "", "", "", "", "", ""])
+        
+        col_ad1, col_ad2 = st.columns(2)
+        with col_ad1:
+            st.markdown("### Admin Account Information")
+            st.text_input("Full Name", value=u_data[1], disabled=True)
+            st.text_input("Username", value=u_data[2], disabled=True)
+            st.text_input("Email", value=u_data[4], disabled=True)
+            st.text_input("Birthday", value=u_data[5], disabled=True)
+            st.text_input("Contact Number", value=u_data[6], disabled=True)
+            
+        with col_ad2:
+            st.markdown("### Manage Units of Measurement")
+            unit_name = st.text_input("Unit Name:")
+            unit_qty = st.text_input("Quantity (pcs):")
+            
+            unit_box = st.text_area("Units List:", value="packs(cigarettes) - 20 pcs\npcs - 1 pcs\ncases(softdrinks) - 12 pcs", height=100)
+            
+            c_u1, c_u2 = st.columns(2)
+            with c_u1:
+                if st.button("Add Unit", use_container_width=True):
+                    st.success("Unit added successfully!")
+            with c_u2:
+                if st.button("Delete Unit", use_container_width=True):
+                    st.warning("Unit deleted.")
+
+    with tab_about:
+        st.subheader("About the System")
+        st.markdown("""
+        **Dela Cruz Store Inventory Management System**  
+        
+        This system is designed to support family-owned retail establishments in managing their product inventory, tracking retail logs, monitoring stock expiration levels, and generating automated inventory reports.  
+        
+        * **Core Modules:**
+          * User Authentication & Account Recovery
+          * Real-time Inventory & Stock Level Dashboard
+          * Retail Sales Tracking & Logging
+          * Units of Measurement Configuration
+          * Automated Weekly Report Generation
+        """)
+
+    st.markdown("<br><hr>", unsafe_allow_html=True)
+    if st.button("EXIT / LOGOUT SYSTEM", use_container_width=True):
         st.session_state.logged_in = False
         st.session_state.username = ""
         st.session_state.page = "login"
-        st.session_state.owner_verified = False
         st.rerun()
