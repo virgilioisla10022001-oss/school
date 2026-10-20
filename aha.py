@@ -72,7 +72,6 @@ if not st.session_state.logged_in:
         if st.session_state.page == "register":
             st.markdown("<h3 style='text-align: center; color: white;'>CREATE ACCOUNT</h3>", unsafe_allow_html=True)
             
-            # May mga placeholder examples na para hindi manghula ang user
             fullname = st.text_input("Full Name", placeholder="e.g., Juan Dela Cruz")
             reg_user = st.text_input("Username", placeholder="e.g., juandelacruz25")
             reg_pass = st.text_input("Password", type="password", placeholder="I-type ang iyong password")
@@ -82,15 +81,24 @@ if not st.session_state.logged_in:
 
             st.markdown("<br>", unsafe_allow_html=True)
             if st.button("Create Account", use_container_width=True):
-                if fullname and reg_user and reg_pass and email:
+                # Detalyadong pagsusuri kung bakit nagka-error o kung ano ang kulang
+                if not fullname:
+                    st.warning("⚠️ Mangyaring ilagay ang iyong Full Name.")
+                elif not reg_user:
+                    st.warning("⚠️ Mangyaring ilagay ang iyong Username.")
+                elif not reg_pass:
+                    st.warning("⚠️ Mangyaring ilagay ang iyong Password.")
+                elif not email or "@" not in email:
+                    st.warning("⚠️ Maling Email Address! Siguraduhing mayroon itong '@' (hal. juandelacruz@gmail.com).")
+                elif not contact or not contact.isdigit() or len(contact) != 11:
+                    st.warning("⚠️ Maling Contact Number! Siguraduhing ito ay eksaktong 11 digits at nagsisimula sa 09.")
+                else:
                     if register_user(fullname, reg_user, reg_pass, email, str(birthday), contact):
                         st.success("Account created successfully! Please login.")
                         st.session_state.page = "login"
                         st.rerun()
                     else:
-                        st.error("Username already exists.")
-                else:
-                    st.warning("Please fill in all required fields.")
+                        st.error("⚠️ Ang Username na ito ay nagagamit na. Pumili ng iba.")
             
             if st.button("Back to Login", use_container_width=True):
                 st.session_state.page = "login"
@@ -189,7 +197,6 @@ else:
         st.markdown("### Latest Products")
         if products:
             df_latest = pd.DataFrame(products, columns=["ID", "Name", "Brand", "Category", "Quantity", "Price", "Expiry", "Date Added"])
-            # Nakaayos na ang "Date Added" na may space para iwas KeyError
             st.dataframe(df_latest[["Name", "Brand", "Quantity", "Date Added"]].tail(5), use_container_width=True, hide_index=True)
         else:
             st.info("No products recorded yet.")
