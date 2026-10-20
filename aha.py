@@ -134,13 +134,13 @@ if not st.session_state.logged_in:
     else:
         _, center_col, _ = st.columns([1, 1.8, 1])
         with center_col:
-            # --- PAGLALAGAY NG LOGO SA TAAS NG LOGIN ---
+            # --- CENTERING AT PAGpapalaki ng LOGO ---
             try:
-                # Siguraduhing pangalan ng logo file mo ay 'logo.png' at naka-upload sa GitHub
-                st.image("ge.png", width=150, use_column_width=False)
+                _, img_col, _ = st.columns([1, 2.5, 1])
+                with img_col:
+                    st.image("ge.png", width=250) # Pwede mong lakihan o liitan ang width number dito (hal. 200 o 300)
             except:
-                # Fallback icon kung sakaling hindi pa na-upload ang logo file
-                st.markdown("<div style='text-align: center; font-size: 55px; margin-bottom: 15px;'>👤</div>", unsafe_allow_html=True)
+                st.markdown("<div style='text-align: center; font-size: 65px; margin-bottom: 15px;'>👤</div>", unsafe_allow_html=True)
 
             st.markdown("""
                 <div style='text-align: center;'>
