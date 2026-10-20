@@ -134,10 +134,17 @@ if not st.session_state.logged_in:
     else:
         _, center_col, _ = st.columns([1, 1.8, 1])
         with center_col:
+            # --- PAGLALAGAY NG LOGO SA TAAS NG LOGIN ---
+            try:
+                # Siguraduhing pangalan ng logo file mo ay 'logo.png' at naka-upload sa GitHub
+                st.image("logo.png", width=150, use_column_width=False)
+            except:
+                # Fallback icon kung sakaling hindi pa na-upload ang logo file
+                st.markdown("<div style='text-align: center; font-size: 55px; margin-bottom: 15px;'>👤</div>", unsafe_allow_html=True)
+
             st.markdown("""
                 <div style='text-align: center;'>
-                    <h3 style='color: white; font-weight: bold; margin-bottom: 5px;'>USER LOGIN</h3>
-                    <div style='font-size: 55px; line-height: 1; margin-bottom: 15px;'>👤</div>
+                    <h3 style='color: white; font-weight: bold; margin-bottom: 15px;'>USER LOGIN</h3>
                 </div>
             """, unsafe_allow_html=True)
 
