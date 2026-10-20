@@ -124,4 +124,4 @@ def get_retail_logs():
     cursor.execute("SELECT * FROM retail_logs")
     rows = cursor.fetchall()
     conn.close()
-    return rows
+    return rows  # Naayos ang typo mula sa 'rowss'
