@@ -81,7 +81,6 @@ if not st.session_state.logged_in:
 
             st.markdown("<br>", unsafe_allow_html=True)
             if st.button("Create Account", use_container_width=True):
-                # Detalyadong pagsusuri kung bakit nagka-error o kung ano ang kulang
                 if not fullname:
                     st.warning("⚠️ Mangyaring ilagay ang iyong Full Name.")
                 elif not reg_user:
@@ -207,6 +206,7 @@ else:
         col_form, col_table = st.columns([1, 1.5])
         
         with col_form:
+            st.markdown("#### ➕ Add New Product")
             with st.form("inventory_form", clear_on_submit=True):
                 p_name = st.text_input("Product Name", placeholder="e.g., Bear Brand 33g")
                 p_brand = st.text_input("Brand Name", placeholder="e.g., Nestlé")
@@ -224,6 +224,22 @@ else:
                         st.rerun()
                     else:
                         st.warning("Please enter a product name.")
+
+            st.markdown("<hr style='border: 1px solid rgba(255,255,255,0.2); margin: 20px 0;'>", unsafe_allow_html=True)
+            
+            # --- DELETE PRODUCT SECTION ---
+            st.markdown("#### 🗑️ Delete Product")
+            if products:
+                prod_delete_options = {f"ID: {p[0]} | {p[1]} ({p[2]})": p[0] for p in products}
+                selected_del_label = st.selectbox("Pumili ng Produktong Buburahin", options=list(prod_delete_options.keys()))
+                
+                if st.button("Delete Selected Product", use_container_width=True):
+                    del_id = prod_delete_options[selected_del_label]
+                    delete_product(del_id)
+                    st.success("Product deleted successfully!")
+                    st.rerun()
+            else:
+                st.info("Walang produktong pwedeng i-delete.")
 
         with col_table:
             st.markdown("#### Product Records List")
