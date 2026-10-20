@@ -1,4 +1,5 @@
 import streamlit as st
+from database import init_db, register_user, verify_user
 
 st.set_page_config(
     page_title="Dela Cruz Store Inventory Management System",
@@ -6,10 +7,12 @@ st.set_page_config(
     layout="wide"
 )
 
+# I-initialize ang database habang naglo-load ang app
+init_db()
+
 # Custom CSS para sa fix ng input background at styling
 st.markdown("""
     <style>
-    /* Itago ang default Streamlit elements */
     #MainMenu {visibility: hidden !important;}
     header {visibility: hidden !important; display: none !important;}
     footer {visibility: hidden !important; display: none !important;}
@@ -25,13 +28,11 @@ st.markdown("""
         max-width: 100% !important;
     }
 
-    /* Background Gradient */
     .stApp {
         background: linear-gradient(135deg, #0056b3 0%, #0080ff 50%, #1a8cff 100%);
         color: white;
     }
 
-    /* Form Label Styling */
     .field-label {
         color: white;
         font-weight: bold;
@@ -40,7 +41,6 @@ st.markdown("""
         padding-top: 8px;
     }
 
-    /* Piliting maging puti ang background ng Text Inputs at itim ang text */
     input[type="text"], input[type="password"] {
         background-color: #ffffff !important;
         color: #000000 !important;
@@ -52,7 +52,6 @@ st.markdown("""
         border-radius: 4px !important;
     }
 
-    /* Custom Button Styling (LOGIN, Create Account, Forgot Password) */
     div.stButton > button {
         background-color: #1a6fb3 !important;
         color: white !important;
@@ -68,7 +67,6 @@ st.markdown("""
         border-color: #ffffff !important;
     }
 
-    /* Checkbox Text Color */
     div[data-testid="stCheckbox"] label span {
         color: white !important;
         font-size: 12px !important;
@@ -85,73 +83,114 @@ with col_title:
 
 st.markdown("<hr style='border: 1px solid rgba(255,255,255,0.3); margin-top: 10px; margin-bottom: 30px;'>", unsafe_allow_html=True)
 
-# Session State Initialization
+# Session States
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 if "username" not in st.session_state:
     st.session_state.username = ""
+if "page" not in st.session_state:
+    st.session_state.page = "login"
 
 if not st.session_state.logged_in:
-    # Center Column Layout
-    _, center_col, _ = st.columns([1, 1.8, 1])
+    
+    # 1. REGISTER PAGE
+    if st.session_state.page == "register":
+        _, center_col, _ = st.columns([1, 1.8, 1])
+        with center_col:
+            st.markdown("""
+                <div style='text-align: center;'>
+                    <h3 style='color: white; font-weight: bold; margin-bottom: 5px;'>CREATE ACCOUNT</h3>
+                    <div style='font-size: 50px; line-height: 1; margin-bottom: 15px;'>📝</div>
+                </div>
+            """, unsafe_allow_html=True)
 
-    with center_col:
-        # User Icon & Login Header
-        st.markdown("""
-            <div style='text-align: center;'>
-                <h3 style='color: white; font-weight: bold; margin-bottom: 5px;'>USER LOGIN</h3>
-                <div style='font-size: 55px; line-height: 1; margin-bottom: 15px;'>👤</div>
-            </div>
-        """, unsafe_allow_html=True)
+            reg_user = st.text_input("New Username", key="reg_user")
+            reg_pass = st.text_input("New Password", type="password", key="reg_pass")
+            reg_pass_conf = st.text_input("Confirm Password", type="password", key="reg_pass_conf")
 
-        # Login Form Layout (Label + Input + Login Button side-by-side)
-        row1_col1, row1_col2, row1_col3 = st.columns([1.2, 2.2, 1])
-        with row1_col1:
-            st.markdown("<p class='field-label'>Username</p>", unsafe_allow_html=True)
-        with row1_col2:
-            username_input = st.text_input("Username", label_visibility="collapsed", key="user_in")
+            st.markdown("<br>", unsafe_allow_html=True)
+            col_reg1, col_reg2 = st.columns(2)
+            with col_reg1:
+                if st.button("Register"):
+                    if reg_user and reg_pass and reg_pass_conf:
+                        if reg_pass == reg_pass_conf:
+                            success = register_user(reg_user, reg_pass)
+                            if success:
+                                st.success("Account created successfully! Please login.")
+                                st.session_state.page = "login"
+                                st.rerun()
+                            else:
+                                st.error("Username already exists. Choose another.")
+                        else:
+                            st.warning("Passwords do not match!")
+                    else:
+                        st.warning("Please fill in all fields.")
+            with col_reg2:
+                if st.button("Back to Login"):
+                    st.session_state.page = "login"
+                    st.rerun()
 
-        row2_col1, row2_col2, row2_col3 = st.columns([1.2, 2.2, 1])
-        with row2_col1:
-            st.markdown("<p class='field-label'>Password</p>", unsafe_allow_html=True)
-        with row2_col2:
-            show_pwd = st.session_state.get("show_pwd_check", False)
-            pwd_type = "default" if show_pwd else "password"
-            password_input = st.text_input("Password", type=pwd_type, label_visibility="collapsed", key="pass_in")
-            
-            # Show password checkbox
-            st.checkbox("Show Password", key="show_pwd_check")
+    # 2. LOGIN PAGE
+    else:
+        _, center_col, _ = st.columns([1, 1.8, 1])
+        with center_col:
+            st.markdown("""
+                <div style='text-align: center;'>
+                    <h3 style='color: white; font-weight: bold; margin-bottom: 5px;'>USER LOGIN</h3>
+                    <div style='font-size: 55px; line-height: 1; margin-bottom: 15px;'>👤</div>
+                </div>
+            """, unsafe_allow_html=True)
 
-        with row1_col3:
-            st.markdown("<div style='padding-top: 2px;'></div>", unsafe_allow_html=True)
-            login_submitted = st.button("LOGIN", key="login_btn")
+            row1_col1, row1_col2, row1_col3 = st.columns([1.2, 2.2, 1])
+            with row1_col1:
+                st.markdown("<p class='field-label'>Username</p>", unsafe_allow_html=True)
+            with row1_col2:
+                username_input = st.text_input("Username", label_visibility="collapsed", key="user_in")
 
-        if login_submitted:
-            if username_input and password_input:
-                st.session_state.logged_in = True
-                st.session_state.username = username_input
-                st.rerun()
-            else:
-                st.error("Please enter both username and password!")
+            row2_col1, row2_col2, row2_col3 = st.columns([1.2, 2.2, 1])
+            with row2_col1:
+                st.markdown("<p class='field-label'>Password</p>", unsafe_allow_html=True)
+            with row2_col2:
+                show_pwd = st.session_state.get("show_pwd_check", False)
+                pwd_type = "default" if show_pwd else "password"
+                password_input = st.text_input("Password", type=pwd_type, label_visibility="collapsed", key="pass_in")
+                st.checkbox("Show Password", key="show_pwd_check")
 
-        st.markdown("<br>", unsafe_allow_html=True)
+            with row1_col3:
+                st.markdown("<div style='padding-top: 2px;'></div>", unsafe_allow_html=True)
+                login_submitted = st.button("LOGIN", key="login_btn")
 
-        # Bottom Buttons (Create Account & Forgot Password)
-        bot_col1, _, bot_col2 = st.columns([1.5, 0.5, 1.5])
-        with bot_col1:
-            if st.button("Create Account"):
-                st.info("Create Account feature clicked!")
-        with bot_col2:
-            if st.button("Forgot Password"):
-                st.info("Forgot Password feature clicked!")
+            if login_submitted:
+                if username_input and password_input:
+                    if verify_user(username_input, password_input):
+                        st.session_state.logged_in = True
+                        st.session_state.username = username_input
+                        st.rerun()
+                    else:
+                        st.error("Invalid username or password!")
+                else:
+                    st.warning("Please enter both username and password!")
+
+            st.markdown("<br>", unsafe_allow_html=True)
+
+            bot_col1, _, bot_col2 = st.columns([1.5, 0.5, 1.5])
+            with bot_col1:
+                if st.button("Create Account"):
+                    st.session_state.page = "register"
+                    st.rerun()
+            with bot_col2:
+                if st.button("Forgot Password"):
+                    st.info("Forgot Password feature coming soon!")
 
 else:
-    # Authenticated View
+    # --- DASHBOARD / LOGGED IN VIEW ---
     st.markdown(f"<h2 style='text-align: center; color: white;'>Welcome, {st.session_state.username}! 🎉</h2>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; color: #e6f2ff;'>Dito mo ilalagay ang Inventory Dashboard (Add Products, Stocks, Sales, etc.)</p>", unsafe_allow_html=True)
     st.markdown("<br>", unsafe_allow_html=True)
     
     col1, col2, col3 = st.columns([2, 1, 2])
     with col2:
         if st.button("LOGOUT", use_container_width=True):
             st.session_state.logged_in = False
+            st.session_state.username = ""
             st.rerun()
