@@ -64,7 +64,6 @@ st.markdown("""
         font-size: 12px !important;
     }
 
-    /* SAGAD AT RESPONSIVE na Logo CSS */
     .responsive-logo-max {
         display: block;
         margin-left: auto;
@@ -102,7 +101,7 @@ if not st.session_state.logged_in:
             reg_pass = st.text_input("New Password", type="password", key="reg_pass")
             reg_pass_conf = st.text_input("Confirm Password", type="password", key="reg_pass_conf")
             
-            # Role selection para sa mga kawani o admin
+            # Role selection base sa Role table mo
             reg_role = st.selectbox("Account Role", ["Staff", "Admin"], key="reg_role")
 
             st.markdown("<br>", unsafe_allow_html=True)
@@ -129,7 +128,6 @@ if not st.session_state.logged_in:
     else:
         _, center_col, _ = st.columns([1, 1.8, 1])
         with center_col:
-            # Responsive at Sagad na Logo
             try:
                 def get_image_base64(path):
                     with open(path, "rb") as img_file:
@@ -169,7 +167,6 @@ if not st.session_state.logged_in:
 
             st.markdown("<br>", unsafe_allow_html=True)
 
-            # Bottom Buttons Side by Side
             b1, b2 = st.columns(2)
             with b1:
                 if st.button("Create Account", use_container_width=True):
@@ -181,12 +178,43 @@ if not st.session_state.logged_in:
 
 else:
     # --- DASHBOARD / LOGGED IN VIEW ---
-    _, center_col, _ = st.columns([1, 1.5, 1])
-    with center_col:
-        st.markdown(f"<h2 style='text-align: center; color: white;'>Welcome, {st.session_state.username}! 🎉</h2>", unsafe_allow_html=True)
-        st.markdown("<p style='text-align: center; color: #e6f2ff;'>Dito mo ilalagay ang Inventory Dashboard (Add Products, Stocks, Sales, etc.)</p>", unsafe_allow_html=True)
-        st.markdown("<br>", unsafe_allow_html=True)
-        if st.button("LOGOUT", use_container_width=True):
-            st.session_state.logged_in = False
-            st.session_state.username = ""
-            st.rerun()
+    st.sidebar.title(f"Hello, {st.session_state.username}!")
+    menu = st.sidebar.radio("Navigation", ["Dashboard", "Products", "Categories", "Suppliers", "Orders", "Customers"])
+
+    if menu == "Dashboard":
+        st.markdown(f"<h2 style='color: white;'>Welcome to the Inventory Dashboard, {st.session_state.username}! 🎉</h2>", unsafe_allow_html=True)
+        st.markdown("<p style='color: #e6f2ff;'>Dito mo na ilalagay ang mga summary metrics tulad ng Total Products, Low Stock alerts, at Quick Actions base sa iyong ERD tables.</p>", unsafe_allow_html=True)
+        
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric(label="Total Products", value="0", delta="0")
+        with col2:
+            st.metric(label="Total Categories", value="0", delta="0")
+        with col3:
+            st.metric(label="Total Suppliers", value="0", delta="0")
+
+    elif menu == "Products":
+        st.subheader("📦 Product Management")
+        st.info("Dito mo isasama ang form para mag-add ng Product at Product table view.")
+
+    elif menu == "Categories":
+        st.subheader("📑 Category Management")
+        st.info("Dito mo isasama ang pamamahala ng mga kategorya ng produkto.")
+
+    elif menu == "Suppliers":
+        st.subheader("🚚 Supplier Management")
+        st.info("Dito mo isasama ang listahan at detalye ng mga suppliers.")
+
+    elif menu == "Orders":
+        st.subheader("🛒 Order Transactions")
+        st.info("Dito mo isasama ang paggawa ng Orders at Order Details.")
+
+    elif menu == "Customers":
+        st.subheader("👥 Customer Management")
+        st.info("Dito mo isasama ang listahan ng mga customers.")
+
+    st.markdown("<br><br>", unsafe_allow_html=True)
+    if st.button("LOGOUT", use_container_width=True):
+        st.session_state.logged_in = False
+        st.session_state.username = ""
+        st.rerun()
