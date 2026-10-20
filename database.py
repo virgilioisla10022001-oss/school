@@ -61,6 +61,7 @@ def init_db():
 
 def register_user(username: str, password: str) -> bool:
     """Nag-rerehistro ng bagong user."""
+    init_db()  # Sisiguraduhinglaging andyan ang table bago mag-insert
     username_clean = username.strip().lower()
     
     if not username_clean or not password:
@@ -86,6 +87,7 @@ def register_user(username: str, password: str) -> bool:
 
 def verify_user(username: str, password: str) -> bool:
     """Nag-ve-verify ng username at password."""
+    init_db()  # Sisiguraduhing laging andyan ang table bago mag-query
     username_clean = username.strip().lower()
 
     conn = get_connection()
@@ -112,6 +114,7 @@ def verify_user(username: str, password: str) -> bool:
 
 def add_product(product_name: str, category: str, quantity: int, price: float) -> bool:
     """Nagdaragdag ng bagong produkto sa inventory."""
+    init_db()
     try:
         conn = get_connection()
         cursor = conn.cursor()
@@ -129,6 +132,7 @@ def add_product(product_name: str, category: str, quantity: int, price: float) -
 
 def get_all_products():
     """Kinukuha ang lahat ng mga produkto mula sa database."""
+    init_db()
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT id, product_name, category, quantity, price, date_added FROM products")
@@ -139,6 +143,7 @@ def get_all_products():
 
 def update_product(product_id: int, product_name: str, category: str, quantity: int, price: float) -> bool:
     """Binabago ang detalye ng isang produkto gamit ang ID nito."""
+    init_db()
     try:
         conn = get_connection()
         cursor = conn.cursor()
@@ -157,6 +162,7 @@ def update_product(product_id: int, product_name: str, category: str, quantity: 
 
 def delete_product(product_id: int) -> bool:
     """Nagbubura ng produkto mula sa database gamit ang ID nito."""
+    init_db()
     try:
         conn = get_connection()
         cursor = conn.cursor()
