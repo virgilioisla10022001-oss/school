@@ -51,17 +51,20 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- LOGO AT HEADER SA GITNA ---
-col_l1, col_l2, col_l3 = st.columns([1, 1, 1])
-with col_l2:
+# 1. PAMAGAT SA ITAAS
+st.markdown("<h1 style='text-align: center; color: white; font-size: 26px; font-weight: bold; margin-bottom: 10px;'>🛒 DELA CRUZ STORE INVENTORY MANAGEMENT SYSTEM</h1>", unsafe_allow_html=True)
+st.markdown("<hr style='border: 1px solid rgba(255,255,255,0.3); margin-top: 5px; margin-bottom: 20px;'>", unsafe_allow_html=True)
+
+# 2. MALAKING LOGO SA GITNA NG PAMAGAT AT NG LOGIN FORM
+col_logo1, col_logo2, col_logo3 = st.columns([1, 1.2, 1])
+with col_logo2:
     try:
-        # Malaking Logo sa Gitna (180px width)
-        st.image("ge.png", width=180)
+        # Pinalaki ang width papuntang 240px
+        st.image("ge.png", width=240)
     except:
         pass
 
-st.markdown("<h1 style='text-align: center; color: white; font-size: 26px; font-weight: bold; margin-top: 10px;'>🛒 DELA CRUZ STORE INVENTORY MANAGEMENT SYSTEM</h1>", unsafe_allow_html=True)
-st.markdown("<hr style='border: 1px solid rgba(255,255,255,0.3); margin-top: 5px; margin-bottom: 25px;'>", unsafe_allow_html=True)
+st.markdown("<br>", unsafe_allow_html=True)
 
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
