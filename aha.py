@@ -34,6 +34,15 @@ st.markdown("""
         margin: auto !important;
     }
 
+    /* CSS Alignment para katabi at pantay ang logo sa title */
+    .header-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        margin-bottom: 10px;
+    }
+
     div.stButton > button {
         background-color: #004080 !important;
         color: white !important;
@@ -51,20 +60,20 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- PAMAGAT SA KALIWA AT MALAKING LOGO SA KANANG BAHAGI ---
-col_title, col_logo = st.columns([5, 1.5])
+# --- PAMAGAT AT MAS PINALAKING LOGO NA KATABI MISMO NITO ---
+col_title, col_logo = st.columns([3.5, 1])
 
 with col_title:
-    st.markdown("<h1 style='color: white; font-size: 24px; font-weight: bold; margin-top: 25px;'>🛒 DELA CRUZ STORE INVENTORY MANAGEMENT SYSTEM</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 style='color: white; font-size: 26px; font-weight: bold; margin-top: 20px;'>🛒 DELA CRUZ STORE INVENTORY MANAGEMENT SYSTEM</h1>", unsafe_allow_html=True)
 
 with col_logo:
     try:
-        # Pinalaki ang logo sa kanang bahagi
-        st.image("ge.png", width=150)
+        # Mas pinalaki sa 220px at nakatabi mismo sa pamagat
+        st.image("ge.png", width=220)
     except:
         pass
 
-st.markdown("<hr style='border: 1px solid rgba(255,255,255,0.3); margin-top: 5px; margin-bottom: 25px;'>", unsafe_allow_html=True)
+st.markdown("<hr style='border: 1px solid rgba(255,255,255,0.3); margin-top: 10px; margin-bottom: 25px;'>", unsafe_allow_html=True)
 
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
