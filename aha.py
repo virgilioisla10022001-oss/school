@@ -239,4 +239,3 @@ else:
         st.session_state.username = ""
         st.session_state.page = "login"
         st.rerun()
-s
