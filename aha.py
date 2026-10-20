@@ -10,35 +10,42 @@ st.set_page_config(
 # I-initialize ang database habang naglo-load ang app
 init_db()
 
-# Custom CSS para sa sakto at nakafix na card layout
+# Custom CSS para matanggal ang gilid/profile widget at i-lock ang screen
 st.markdown("""
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    </head>
     <style>
-    /* Itago ang default Streamlit elements */
+    /* Itago ang default Streamlit elements at profile badge sa gilid */
     #MainMenu {visibility: hidden !important;}
     header {visibility: hidden !important; display: none !important;}
     footer {visibility: hidden !important; display: none !important;}
-    .stDeployButton {display:none !important;}
-    div[data-testid="stDecoration"] {display:none !important;}
-    div[data-testid="stHeader"] {display:none !important;}
-    div[data-testid="stToolbar"] {display:none !important;}
+    .stDeployButton {display: none !important;}
+    div[data-testid="stDecoration"] {display: none !important;}
+    div[data-testid="stHeader"] {display: none !important;}
+    div[data-testid="stToolbar"] {display: none !important;}
+    div[data-testid="stStatusWidget"] {display: none !important; visibility: hidden !important;}
+    .viewerBadge_container__1QSob {display: none !important; visibility: hidden !important;}
+    div[class*="viewerBadge"] {display: none !important; visibility: hidden !important;}
     
-    /* Lock ang screen para hindi mag-scroll */
+    /* Lock ang buong screen, huwag payagan ang scroll o paggalaw */
     html, body, [data-testid="stAppViewContainer"], .main {
         overflow: hidden !important;
         height: 100vh !important;
         max-height: 100vh !important;
         position: fixed !important;
         width: 100% !important;
+        touch-action: none !important;
     }
 
-    /* Paliitin at i-center ang buong container box */
+    /* Sakto at compact ang card box sa gitna */
     .block-container {
-        padding-top: 1rem !important;
-        padding-bottom: 1rem !important;
-        max-width: 380px !important;
+        padding-top: 0.8rem !important;
+        padding-bottom: 0.8rem !important;
+        max-width: 370px !important;
         width: 100% !important;
         margin: auto !important;
-        background: rgba(0, 0, 0, 0.2);
+        background: rgba(0, 0, 0, 0.25);
         border-radius: 12px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.3);
     }
@@ -87,8 +94,8 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Header Title Center Aligned
-st.markdown("<h1 style='text-align: center; color: white; font-size: 15px; font-weight: bold; margin-bottom: 2px;'>🛒 DELA CRUZ STORE INVENTORY MANAGEMENT SYSTEM</h1>", unsafe_allow_html=True)
-st.markdown("<hr style='border: 1px solid rgba(255,255,255,0.3); margin-top: 2px; margin-bottom: 6px;'>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: white; font-size: 14px; font-weight: bold; margin-bottom: 2px;'>🛒 DELA CRUZ STORE INVENTORY MANAGEMENT SYSTEM</h1>", unsafe_allow_html=True)
+st.markdown("<hr style='border: 1px solid rgba(255,255,255,0.3); margin-top: 2px; margin-bottom: 5px;'>", unsafe_allow_html=True)
 
 # Session States
 if "logged_in" not in st.session_state:
@@ -102,8 +109,8 @@ if not st.session_state.logged_in:
     
     # 1. REGISTER PAGE
     if st.session_state.page == "register":
-        st.markdown("<h3 style='text-align: center; color: white; font-size: 14px; font-weight: bold; margin-bottom: 2px;'>CREATE ACCOUNT</h3>", unsafe_allow_html=True)
-        st.markdown("<div style='text-align: center; font-size: 25px; margin-bottom: 4px;'>📝</div>", unsafe_allow_html=True)
+        st.markdown("<h3 style='text-align: center; color: white; font-size: 13px; font-weight: bold; margin-bottom: 2px;'>CREATE ACCOUNT</h3>", unsafe_allow_html=True)
+        st.markdown("<div style='text-align: center; font-size: 22px; margin-bottom: 3px;'>📝</div>", unsafe_allow_html=True)
 
         reg_user = st.text_input("New Username", key="reg_user")
         reg_pass = st.text_input("New Password", type="password", key="reg_pass")
@@ -128,7 +135,7 @@ if not st.session_state.logged_in:
             st.session_state.page = "login"
             st.rerun()
 
-    # 2. LOGIN PAGE (Fixed, Locked & Compact Card)
+    # 2. LOGIN PAGE (Locked, Fixed, Non-Zoomable)
     else:
         # LOGO DISPLAY
         try:
@@ -136,9 +143,9 @@ if not st.session_state.logged_in:
             with col2:
                 st.image("ge.png", use_container_width=True)
         except:
-            st.markdown("<div style='text-align: center; font-size: 40px; margin-bottom: 2px;'>👤</div>", unsafe_allow_html=True)
+            st.markdown("<div style='text-align: center; font-size: 35px; margin-bottom: 2px;'>👤</div>", unsafe_allow_html=True)
 
-        st.markdown("<h3 style='text-align: center; color: white; font-size: 14px; font-weight: bold; margin-top: 2px; margin-bottom: 6px;'>USER LOGIN</h3>", unsafe_allow_html=True)
+        st.markdown("<h3 style='text-align: center; color: white; font-size: 13px; font-weight: bold; margin-top: 2px; margin-bottom: 5px;'>USER LOGIN</h3>", unsafe_allow_html=True)
 
         username_input = st.text_input("Username", key="user_in")
         
