@@ -5,10 +5,24 @@ import os
 DB_NAME = "inventory.db"
 
 
+def hash_password(password: str, salt: bytes = None) -> tuple[str, str]:
+    if salt is None:
+        salt = os.urandom(16)
+    hashed = hashlib.pbkdf2_hmac(
+        'sha256',
+        password.encode('utf-8'),
+        salt,
+        100000
+    )
+    return hashed.hex(), salt.hex()
+
+
 def init_db():
-    """I-in-initialize ang database tables para sa users at inventory products."""
+    """I-in-initialize ang database at awtomatikong gagawa ng default admin account."""
     with sqlite3.connect(DB_NAME, check_same_thread=False) as conn:
         cursor = conn.cursor()
+        
+        # 1. Users Table
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -18,6 +32,8 @@ def init_db():
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
+        
+        # 2. Products Table
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS products (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -30,17 +46,15 @@ def init_db():
         """)
         conn.commit()
 
-
-def hash_password(password: str, salt: bytes = None) -> tuple[str, str]:
-    if salt is None:
-        salt = os.urandom(16)
-    hashed = hashlib.pbkdf2_hmac(
-        'sha256',
-        password.encode('utf-8'),
-        salt,
-        100000
-    )
-    return hashed.hex(), salt.hex()
+        # 3. Automatic Default Account para hindi mawala
+        cursor.execute("SELECT id FROM users WHERE username = 'admin'")
+        if not cursor.fetchone():
+            pass_hash, salt_hex = hash_password("admin123")
+            cursor.execute("""
+                INSERT INTO users (username, password_hash, salt)
+                VALUES (?, ?, ?)
+            """, ("admin", pass_hash, salt_hex))
+            conn.commit()
 
 
 def register_user(username: str, password: str) -> bool:
