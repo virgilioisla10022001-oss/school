@@ -3,7 +3,6 @@ import sqlite3
 def init_db():
     conn = sqlite3.connect("store_inventory.db")
     cursor = conn.cursor()
-    # Users Table
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -15,7 +14,6 @@ def init_db():
             contact TEXT
         )
     """)
-    # Products Table
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS products (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -28,7 +26,6 @@ def init_db():
             date_added TEXT
         )
     """)
-    # Retail Logs Table (Sales)
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS retail_logs (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -38,7 +35,6 @@ def init_db():
             date_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
-    # Reports Table
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS reports (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
