@@ -10,23 +10,20 @@ st.set_page_config(
 # I-initialize ang database habang naglo-load ang app
 init_db()
 
-# Custom CSS para matanggal ang gilid/profile widget at i-lock ang screen
+# Mahigpit na Viewport meta tag para i-lock ang zoom at scale sa screen
 st.markdown("""
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     </head>
     <style>
-    /* Itago ang default Streamlit elements at profile badge sa gilid */
+    /* Itago ang default Streamlit elements */
     #MainMenu {visibility: hidden !important;}
     header {visibility: hidden !important; display: none !important;}
     footer {visibility: hidden !important; display: none !important;}
-    .stDeployButton {display: none !important;}
-    div[data-testid="stDecoration"] {display: none !important;}
-    div[data-testid="stHeader"] {display: none !important;}
-    div[data-testid="stToolbar"] {display: none !important;}
-    div[data-testid="stStatusWidget"] {display: none !important; visibility: hidden !important;}
-    .viewerBadge_container__1QSob {display: none !important; visibility: hidden !important;}
-    div[class*="viewerBadge"] {display: none !important; visibility: hidden !important;}
+    .stDeployButton {display:none !important;}
+    div[data-testid="stDecoration"] {display:none !important;}
+    div[data-testid="stHeader"] {display:none !important;}
+    div[data-testid="stToolbar"] {display:none !important;}
     
     /* Lock ang buong screen, huwag payagan ang scroll o paggalaw */
     html, body, [data-testid="stAppViewContainer"], .main {
