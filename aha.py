@@ -34,6 +34,16 @@ st.markdown("""
         margin: auto !important;
     }
 
+    /* CSS para sa logo at title na magkatabi sa kanan at halos dikit */
+    .header-flex-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        margin-top: 5px;
+        margin-bottom: 0px;
+    }
+
     div.stButton > button {
         background-color: #004080 !important;
         color: white !important;
@@ -51,17 +61,27 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- ISANG LINE NA MAGKATABI ANG LOGO AT TITLE ---
-col_logo, col_title = st.columns([0.15, 0.85], gap="small")
+# --- PAMAGAT SA KALIWA AT LOGO SA KANANG BAHAGI NA HALOS DIKIT ---
+st.markdown("""
+    <div class="header-flex-container">
+        <h1 style='color: white; font-size: 23px; font-weight: bold; margin: 0;'>🛒 DELA CRUZ STORE INVENTORY MANAGEMENT SYSTEM</h1>
+        <img src="app/static/ge.png" width="65" style="border-radius: 4px;">
+    </div>
+""", unsafe_allow_html=True)
+
+# Alternatibong Streamlit native block para sa mga system na direktang naglo-load ng file sa local folder:
+col_title, col_logo = st.columns([0.82, 0.18], gap="small")
+with col_title:
+    pass # Nakapwesto na sa taas ang HTML, pwede mo ring gamitin ito kung nais mo ng dalawang columns.
 with col_logo:
     try:
-        st.image("ge.png", width=80)
+        # Kung sakaling mas gusto mong gamitin ang st.image sa kanan:
+        # st.image("ge.png", width=65)
+        pass
     except:
         pass
-with col_title:
-    st.markdown("<h1 style='color: white; font-size: 23px; font-weight: bold; margin-top: 12px;'>🛒 DELA CRUZ STORE INVENTORY MANAGEMENT SYSTEM</h1>", unsafe_allow_html=True)
 
-st.markdown("<hr style='border: 1px solid rgba(255,255,255,0.3); margin-top: 5px; margin-bottom: 25px;'>", unsafe_allow_html=True)
+st.markdown("<hr style='border: 1px solid rgba(255,255,255,0.3); margin-top: 10px; margin-bottom: 25px;'>", unsafe_allow_html=True)
 
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
