@@ -130,13 +130,13 @@ if not st.session_state.logged_in:
                 st.rerun()
 
         else:
-            # --- LOGO AT USER LOGIN NA EKSAKTONG MAGKATABI AT GUMAGANA ANG IMAGE ---
-            col_u1, col_u2 = st.columns([2.5, 0.8])
-            with col_u1:
-                st.markdown("<h3 style='text-align: right; color: white; margin-top: 5px;'>USER LOGIN</h3>", unsafe_allow_html=True)
-            with col_u2:
+            # --- PERPEKTONG PAGKAKATABI NG LOGO AT USER LOGIN SA GITNA ---
+            col_text, col_img = st.columns([1.6, 0.6])
+            with col_text:
+                st.markdown("<h3 style='color: white; margin: 0; padding-top: 5px; text-align: right;'>USER LOGIN</h3>", unsafe_allow_html=True)
+            with col_img:
                 try:
-                    st.image("ge.png", width=45)
+                    st.image("ge.png", width=42)
                 except:
                     pass
             
