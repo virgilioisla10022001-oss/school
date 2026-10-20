@@ -51,11 +51,10 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- LOGO NA KATABI MISMO NG TITLE SA KANAN ---
+# --- PANGUNAHING TITLE NG SYSTEM SA ITAAS ---
 st.markdown("""
-    <div style="display: flex; align-items: center; justify-content: center; gap: 15px; margin-top: 10px; margin-bottom: 10px;">
-        <h1 style="color: white; font-size: 23px; font-weight: bold; margin: 0; padding: 0;">🛒 DELA CRUZ STORE INVENTORY MANAGEMENT SYSTEM</h1>
-        <img src="app/static/ge.png" width="75" style="vertical-align: middle;">
+    <div style="text-align: center; margin-top: 5px; margin-bottom: 5px;">
+        <h1 style="color: white; font-size: 22px; font-weight: bold; margin: 0;">🛒 DELA CRUZ STORE INVENTORY MANAGEMENT SYSTEM</h1>
     </div>
 """, unsafe_allow_html=True)
 
@@ -131,7 +130,13 @@ if not st.session_state.logged_in:
                 st.rerun()
 
         else:
-            st.markdown("<h3 style='text-align: center; color: white;'>USER LOGIN</h3>", unsafe_allow_html=True)
+            # --- LOGO NA KATABI MISMO NG "USER LOGIN" SA GITNA ---
+            st.markdown("""
+                <div style="display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 15px;">
+                    <h3 style="color: white; margin: 0; padding: 0;">USER LOGIN</h3>
+                    <img src="app/static/ge.png" width="45" style="vertical-align: middle;">
+                </div>
+            """, unsafe_allow_html=True)
             
             username_input = st.text_input("Username", placeholder="I-type ang username")
             password_input = st.text_input("Password", type="password", placeholder="I-type ang password")
