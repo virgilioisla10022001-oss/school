@@ -10,13 +10,13 @@ st.set_page_config(
 # I-initialize ang database habang naglo-load ang app
 init_db()
 
-# Custom CSS para sa nakalock, hindi nagse-scroll, at malinis na screen
+# Custom CSS para sa malinis, nakalock, at walang sagabal sa gilid na interface
 st.markdown("""
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     </head>
     <style>
-    /* Itago ang default Streamlit elements at profile badge sa gilid */
+    /* Pangkalahatang pag-tago ng mga Streamlit branding, menu, at toolbar sa gilid */
     #MainMenu, header, footer, .stDeployButton, 
     div[data-testid="stDecoration"], 
     div[data-testid="stHeader"], 
@@ -28,6 +28,7 @@ st.markdown("""
         visibility: hidden !important;
     }
     
+    /* Tiyaking sarado at tanggal ang mga floating badges / menu sa sulok */
     [class*="viewerBadge"], [class*="profileButton"], div[class*="styles_viewerBadge"] {
         display: none !important;
         visibility: hidden !important;
@@ -140,13 +141,13 @@ if not st.session_state.logged_in:
             st.session_state.page = "login"
             st.rerun()
 
-    # 2. LOGIN PAGE (Locked, Fixed, Non-Zoomable with Large Logo)
+    # 2. LOGIN PAGE (Locked, Fixed, Non-Zoomable)
     else:
-        # LOGO DISPLAY: Pwede mong baguhin ang width (halimbawa: 320 o 350 para mas lumaki pa)
+        # LOGO DISPLAY: Pwede mong baguhin ang width (halimbawa: width=250 o width=300 para lumaki)
         try:
-            col1, col2, col3 = st.columns([0.05, 0.9, 0.05])
+            col1, col2, col3 = st.columns([0.1, 0.8, 0.1])
             with col2:
-                st.image("ge.png", width=320)
+                st.image("ge.png", width=280) # Palitan ang numerong ito kung gusto mo pang lakihan o liitan
         except:
             st.markdown("<div style='text-align: center; font-size: 35px; margin-bottom: 2px;'>👤</div>", unsafe_allow_html=True)
 
