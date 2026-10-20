@@ -38,9 +38,10 @@ st.markdown("""
         border-radius: 6px !important;
     }
     
-    div[data-baseweb="input"] {
+    div[data-baseweb="input"], div[data-baseweb="select"] {
         background-color: #ffffff !important;
         border-radius: 6px !important;
+        color: #000000 !important;
     }
 
     div.stButton > button {
@@ -63,13 +64,13 @@ st.markdown("""
         font-size: 12px !important;
     }
 
-    /* CSS para sa SAGAD AT RESPONSIVE na Logo */
+    /* SAGAD AT RESPONSIVE na Logo CSS */
     .responsive-logo-max {
         display: block;
         margin-left: auto;
         margin-right: auto;
         width: 100%;
-        max-width: 450px; /* Eto ang sagad na laki sa desktop */
+        max-width: 450px;
         height: auto;
         object-fit: contain;
     }
@@ -90,7 +91,7 @@ if "page" not in st.session_state:
 
 if not st.session_state.logged_in:
     
-    # 1. REGISTER PAGE (Centered)
+    # 1. CREATE ACCOUNT PAGE
     if st.session_state.page == "register":
         _, center_col, _ = st.columns([1, 1.8, 1])
         with center_col:
@@ -100,32 +101,35 @@ if not st.session_state.logged_in:
             reg_user = st.text_input("New Username", key="reg_user")
             reg_pass = st.text_input("New Password", type="password", key="reg_pass")
             reg_pass_conf = st.text_input("Confirm Password", type="password", key="reg_pass_conf")
+            
+            # Role selection para sa mga kawani o admin
+            reg_role = st.selectbox("Account Role", ["Staff", "Admin"], key="reg_role")
 
             st.markdown("<br>", unsafe_allow_html=True)
-            if st.button("Register", use_container_width=True):
+            if st.button("Register Account", use_container_width=True):
                 if reg_user and reg_pass and reg_pass_conf:
                     if reg_pass == reg_pass_conf:
-                        if register_user(reg_user, reg_pass):
+                        if register_user(reg_user, reg_pass, reg_role):
                             st.success("Account created successfully! Please login.")
                             st.session_state.page = "login"
                             st.rerun()
                         else:
-                            st.error("Username already exists.")
+                            st.error("Username already exists. Please choose another.")
                     else:
                         st.warning("Passwords do not match!")
                 else:
                     st.warning("Please fill in all fields.")
             
+            st.markdown("<br>", unsafe_allow_html=True)
             if st.button("Back to Login", use_container_width=True):
                 st.session_state.page = "login"
                 st.rerun()
 
-    # 2. LOGIN PAGE (Centered Stacked Layout)
+    # 2. LOGIN PAGE
     else:
-        # Mas pinalapad ang center column para kasya ang mas malaking logo
         _, center_col, _ = st.columns([1, 1.8, 1])
         with center_col:
-            # Sagad na Logo Center
+            # Responsive at Sagad na Logo
             try:
                 def get_image_base64(path):
                     with open(path, "rb") as img_file:
@@ -139,7 +143,6 @@ if not st.session_state.logged_in:
                     unsafe_allow_html=True
                 )
             except Exception:
-                # Fallback kapag hindi nabasa ang ge.png
                 st.markdown("<div style='text-align: center; font-size: 80px; margin-bottom: 10px;'>👤</div>", unsafe_allow_html=True)
 
             st.markdown("<h3 style='text-align: center; color: white; font-weight: bold; margin-top: 5px; margin-bottom: 20px;'>USER LOGIN</h3>", unsafe_allow_html=True)
@@ -166,7 +169,7 @@ if not st.session_state.logged_in:
 
             st.markdown("<br>", unsafe_allow_html=True)
 
-            # Bottom Buttons Side by Side sa Gitna
+            # Bottom Buttons Side by Side
             b1, b2 = st.columns(2)
             with b1:
                 if st.button("Create Account", use_container_width=True):
@@ -174,7 +177,7 @@ if not st.session_state.logged_in:
                     st.rerun()
             with b2:
                 if st.button("Forgot Password", use_container_width=True):
-                    st.info("Coming soon!")
+                    st.info("Feature coming soon!")
 
 else:
     # --- DASHBOARD / LOGGED IN VIEW ---
