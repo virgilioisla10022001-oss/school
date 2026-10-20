@@ -6,7 +6,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Custom CSS para sa exact design matching
+# Custom CSS para sa fix ng input background at styling
 st.markdown("""
     <style>
     /* Itago ang default Streamlit elements */
@@ -40,16 +40,19 @@ st.markdown("""
         padding-top: 8px;
     }
 
-    /* Modern Text Inputs */
-    div[data-baseweb="input"] {
+    /* Piliting maging puti ang background ng Text Inputs at itim ang text */
+    input[type="text"], input[type="password"] {
+        background-color: #ffffff !important;
+        color: #000000 !important;
         border-radius: 4px !important;
-        background-color: white !important;
     }
-    div[data-baseweb="input"] input {
-        color: black !important;
+    
+    div[data-baseweb="input"] {
+        background-color: #ffffff !important;
+        border-radius: 4px !important;
     }
 
-    /* Custom Button Styling */
+    /* Custom Button Styling (LOGIN, Create Account, Forgot Password) */
     div.stButton > button {
         background-color: #1a6fb3 !important;
         color: white !important;
@@ -65,7 +68,7 @@ st.markdown("""
         border-color: #ffffff !important;
     }
 
-    /* Checkbox Styling */
+    /* Checkbox Text Color */
     div[data-testid="stCheckbox"] label span {
         color: white !important;
         font-size: 12px !important;
@@ -112,16 +115,14 @@ if not st.session_state.logged_in:
         with row2_col1:
             st.markdown("<p class='field-label'>Password</p>", unsafe_allow_html=True)
         with row2_col2:
-            # Checkbox state para sa Show Password
             show_pwd = st.session_state.get("show_pwd_check", False)
             pwd_type = "default" if show_pwd else "password"
             password_input = st.text_input("Password", type=pwd_type, label_visibility="collapsed", key="pass_in")
             
-            # Show password checkbox sa ilalim mismo ng password field
+            # Show password checkbox
             st.checkbox("Show Password", key="show_pwd_check")
 
         with row1_col3:
-            # Login Button katabi ng Username field
             st.markdown("<div style='padding-top: 2px;'></div>", unsafe_allow_html=True)
             login_submitted = st.button("LOGIN", key="login_btn")
 
