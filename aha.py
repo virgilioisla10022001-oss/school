@@ -34,12 +34,6 @@ st.markdown("""
         margin: auto !important;
     }
 
-    /* CSS para siguraduhin na centered ang logo */
-    [data-testid="stImage"] {
-        display: flex;
-        justify-content: center;
-    }
-
     div.stButton > button {
         background-color: #004080 !important;
         color: white !important;
@@ -57,20 +51,18 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# 1. PAMAGAT SA ITAAS
-st.markdown("<h1 style='text-align: center; color: white; font-size: 26px; font-weight: bold; margin-bottom: 10px;'>🛒 DELA CRUZ STORE INVENTORY MANAGEMENT SYSTEM</h1>", unsafe_allow_html=True)
-st.markdown("<hr style='border: 1px solid rgba(255,255,255,0.3); margin-top: 5px; margin-bottom: 20px;'>", unsafe_allow_html=True)
-
-# 2. PINAKAMALAKING LOGO SA GITNA
-col_l1, col_l2, col_l3 = st.columns([0.5, 3, 0.5])
-with col_l2:
+# --- LOGO AT PAMAGAT SA TABI NG ISA'T ISA SA ITAAS ---
+col_logo, col_title = st.columns([1, 6])
+with col_logo:
     try:
-        # Ginawang 500px para mas malaki at kitang-kita sa gitna
-        st.image("ge.png", width=500)
+        st.image("ge.png", width=100) # Logo sa tabi ng title
     except:
         pass
 
-st.markdown("<br>", unsafe_allow_html=True)
+with col_title:
+    st.markdown("<h1 style='color: white; font-size: 24px; font-weight: bold; margin-top: 20px;'>🛒 DELA CRUZ STORE INVENTORY MANAGEMENT SYSTEM</h1>", unsafe_allow_html=True)
+
+st.markdown("<hr style='border: 1px solid rgba(255,255,255,0.3); margin-top: 5px; margin-bottom: 25px;'>", unsafe_allow_html=True)
 
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
