@@ -13,8 +13,10 @@ st.set_page_config(
     layout="wide"
 )
 
+# Initialize Database
 init_db()
 
+# Custom CSS with Background Image (awit.png)
 st.markdown("""
     <style>
     #MainMenu {visibility: hidden !important;}
@@ -25,6 +27,7 @@ st.markdown("""
         background: linear-gradient(rgba(0, 30, 70, 0.85), rgba(0, 30, 70, 0.85)), url("awit.png");
         background-size: cover;
         background-position: center;
+        background-repeat: no-repeat;
         background-attachment: fixed;
         color: white;
     }
@@ -69,12 +72,13 @@ if not st.session_state.logged_in:
         if st.session_state.page == "register":
             st.markdown("<h3 style='text-align: center; color: white;'>CREATE ACCOUNT</h3>", unsafe_allow_html=True)
             
-            fullname = st.text_input("Full Name")
-            reg_user = st.text_input("Username")
-            reg_pass = st.text_input("Password", type="password")
-            email = st.text_input("Email Address")
+            # May mga placeholder examples na para hindi manghula ang user
+            fullname = st.text_input("Full Name", placeholder="e.g., Juan Dela Cruz")
+            reg_user = st.text_input("Username", placeholder="e.g., juandelacruz25")
+            reg_pass = st.text_input("Password", type="password", placeholder="I-type ang iyong password")
+            email = st.text_input("Email Address", placeholder="e.g., juandelacruz@gmail.com")
             birthday = st.date_input("Birthday", value=datetime.date(2000, 1, 1))
-            contact = st.text_input("Contact Number")
+            contact = st.text_input("Contact Number", placeholder="e.g., 09123456789")
 
             st.markdown("<br>", unsafe_allow_html=True)
             if st.button("Create Account", use_container_width=True):
@@ -96,9 +100,9 @@ if not st.session_state.logged_in:
             st.markdown("<h3 style='text-align: center; color: white;'>FORGOT PASSWORD</h3>", unsafe_allow_html=True)
             st.caption("Enter your username and email address to reset password:")
             
-            f_user = st.text_input("Username")
-            f_email = st.text_input("Email Address")
-            new_pass = st.text_input("New Password", type="password")
+            f_user = st.text_input("Username", placeholder="e.g., juandelacruz25")
+            f_email = st.text_input("Email Address", placeholder="e.g., juandelacruz@gmail.com")
+            new_pass = st.text_input("New Password", type="password", placeholder="I-type ang bagong password")
 
             st.markdown("<br>", unsafe_allow_html=True)
             if st.button("Verify Email and Reset Password", use_container_width=True):
@@ -119,8 +123,8 @@ if not st.session_state.logged_in:
         else:
             st.markdown("<h3 style='text-align: center; color: white;'>USER LOGIN</h3>", unsafe_allow_html=True)
             
-            username_input = st.text_input("Username")
-            password_input = st.text_input("Password", type="password")
+            username_input = st.text_input("Username", placeholder="I-type ang username")
+            password_input = st.text_input("Password", type="password", placeholder="I-type ang password")
             st.checkbox("Show Password", key="show_pwd_check")
 
             st.markdown("<br>", unsafe_allow_html=True)
@@ -185,7 +189,7 @@ else:
         st.markdown("### Latest Products")
         if products:
             df_latest = pd.DataFrame(products, columns=["ID", "Name", "Brand", "Category", "Quantity", "Price", "Expiry", "Date Added"])
-            # Dito naayos ang KeyError sa pamamagitan ng paggamit ng "Date Added" na may space
+            # Nakaayos na ang "Date Added" na may space para iwas KeyError
             st.dataframe(df_latest[["Name", "Brand", "Quantity", "Date Added"]].tail(5), use_container_width=True, hide_index=True)
         else:
             st.info("No products recorded yet.")
@@ -197,8 +201,8 @@ else:
         
         with col_form:
             with st.form("inventory_form", clear_on_submit=True):
-                p_name = st.text_input("Product Name")
-                p_brand = st.text_input("Brand Name")
+                p_name = st.text_input("Product Name", placeholder="e.g., Bear Brand 33g")
+                p_brand = st.text_input("Brand Name", placeholder="e.g., Nestlé")
                 p_qty = st.number_input("Quantity", min_value=0, step=1)
                 categories = ["Beverages & Dairy", "Canned & Processed Goods", "Snacks, Chips, & Biscuits", "Instant & Ready-to-Eat", "Cigarettes", "Rice, Grains, & Cooking Ingredients", "Coffee", "Others"]
                 p_cat = st.selectbox("Category", options=categories)
@@ -292,8 +296,8 @@ else:
             
         with col_ad2:
             st.markdown("### Manage Units of Measurement")
-            unit_name = st.text_input("Unit Name:")
-            unit_qty = st.text_input("Quantity (pcs):")
+            unit_name = st.text_input("Unit Name:", placeholder="e.g., box")
+            unit_qty = st.text_input("Quantity (pcs):", placeholder="e.g., 24")
             
             unit_box = st.text_area("Units List:", value="packs(cigarettes) - 20 pcs\npcs - 1 pcs\ncases(softdrinks) - 12 pcs", height=100)
             
