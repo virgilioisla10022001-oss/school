@@ -4,15 +4,23 @@ from database import init_db, register_user, verify_user
 st.set_page_config(
     page_title="Dela Cruz Store Inventory Management System",
     page_icon="🛒",
-    layout="centered" # Ginawang 'centered' para fixed width
+    layout="centered"
 )
 
 # I-initialize ang database habang naglo-load ang app
 init_db()
 
-# Custom CSS para sa FIXED container size at alignment
+# Viewport meta tag para pigilan ang zoom/scaling at panatilihing fixed ang UI
+st.markdown("""
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    </head>
+""", unsafe_allow_html=True)
+
+# Custom CSS para sa FIXED & NON-ZOOMABLE container
 st.markdown("""
     <style>
+    /* Itago ang default Streamlit elements */
     #MainMenu {visibility: hidden !important;}
     header {visibility: hidden !important; display: none !important;}
     footer {visibility: hidden !important; display: none !important;}
@@ -21,12 +29,18 @@ st.markdown("""
     div[data-testid="stHeader"] {display:none !important;}
     div[data-testid="stToolbar"] {display:none !important;}
     
-    /* Lock layout width para hindi nag-a-adjust sa iba't ibang screen */
+    /* Lock layout dimensions */
+    html, body {
+        overflow-x: hidden !important;
+        touch-action: pan-x pan-y !important;
+    }
+
     .block-container {
-        padding-top: 1.5rem !important;
-        max-width: 500px !important; /* Fixed width sa 500px */
-        width: 500px !important;
-        margin: auto !important;
+        padding-top: 1rem !important;
+        padding-bottom: 1rem !important;
+        max-width: 480px !important; /* Fixed maximum width */
+        width: 100% !important;
+        margin: 0 auto !important;
     }
 
     .stApp {
@@ -34,19 +48,12 @@ st.markdown("""
         color: white;
     }
 
-    /* Fixed Box Container */
-    .login-box {
-        background-color: rgba(255, 255, 255, 0.1);
-        padding: 30px;
-        border-radius: 12px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        margin-top: 10px;
-    }
-
+    /* Input styling - fixed height at fit */
     input[type="text"], input[type="password"] {
         background-color: #ffffff !important;
         color: #000000 !important;
         border-radius: 6px !important;
+        font-size: 14px !important;
     }
     
     div[data-baseweb="input"] {
@@ -54,6 +61,7 @@ st.markdown("""
         border-radius: 6px !important;
     }
 
+    /* Custom Button styling */
     div.stButton > button {
         background-color: #1a6fb3 !important;
         color: white !important;
@@ -62,6 +70,7 @@ st.markdown("""
         font-weight: bold !important;
         padding: 8px 12px !important;
         width: 100%;
+        font-size: 14px !important;
     }
     
     div.stButton > button:hover {
@@ -73,12 +82,20 @@ st.markdown("""
         color: white !important;
         font-size: 12px !important;
     }
+
+    /* Container Box para fit ang lahat sa gitna */
+    .centered-card {
+        background: rgba(255, 255, 255, 0.08);
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    }
     </style>
 """, unsafe_allow_html=True)
 
 # Header Title Center Aligned
-st.markdown("<h1 style='text-align: center; color: white; font-size: 20px; font-weight: bold;'>🛒 DELA CRUZ STORE INVENTORY MANAGEMENT SYSTEM</h1>", unsafe_allow_html=True)
-st.markdown("<hr style='border: 1px solid rgba(255,255,255,0.3); margin-top: 5px; margin-bottom: 20px;'>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: white; font-size: 19px; font-weight: bold; margin-bottom: 5px;'>🛒 DELA CRUZ STORE INVENTORY MANAGEMENT SYSTEM</h1>", unsafe_allow_html=True)
+st.markdown("<hr style='border: 1px solid rgba(255,255,255,0.3); margin-top: 5px; margin-bottom: 15px;'>", unsafe_allow_html=True)
 
 # Session States
 if "logged_in" not in st.session_state:
@@ -93,7 +110,7 @@ if not st.session_state.logged_in:
     # 1. REGISTER PAGE
     if st.session_state.page == "register":
         st.markdown("<h3 style='text-align: center; color: white; font-weight: bold; margin-bottom: 5px;'>CREATE ACCOUNT</h3>", unsafe_allow_html=True)
-        st.markdown("<div style='text-align: center; font-size: 45px; margin-bottom: 15px;'>📝</div>", unsafe_allow_html=True)
+        st.markdown("<div style='text-align: center; font-size: 40px; margin-bottom: 10px;'>📝</div>", unsafe_allow_html=True)
 
         reg_user = st.text_input("New Username", key="reg_user")
         reg_pass = st.text_input("New Password", type="password", key="reg_pass")
@@ -118,17 +135,17 @@ if not st.session_state.logged_in:
             st.session_state.page = "login"
             st.rerun()
 
-    # 2. LOGIN PAGE (Fixed Centered Box)
+    # 2. LOGIN PAGE (Fixed Non-Zoomable Layout)
     else:
-        # LOGO (PWEDE MO PANG LAKIHAN ANG width VALUE DITO HALIMBAWA: 350, 400, ETC.)
+        # LOGO DISPLAY (Gamit ang width=350 o palitan kung gaano kalaki ang nais mo)
         try:
-            col1, col2, col3 = st.columns([0.1, 0.8, 0.1])
+            col1, col2, col3 = st.columns([0.05, 0.9, 0.05])
             with col2:
-                st.image("ge.png", width=350) # Dito binabago ang laki ng logo
+                st.image("ge.png", use_container_width=True)
         except:
-            st.markdown("<div style='text-align: center; font-size: 70px; margin-bottom: 10px;'>👤</div>", unsafe_allow_html=True)
+            st.markdown("<div style='text-align: center; font-size: 60px; margin-bottom: 10px;'>👤</div>", unsafe_allow_html=True)
 
-        st.markdown("<h3 style='text-align: center; color: white; font-weight: bold; margin-top: 10px; margin-bottom: 20px;'>USER LOGIN</h3>", unsafe_allow_html=True)
+        st.markdown("<h3 style='text-align: center; color: white; font-weight: bold; margin-top: 5px; margin-bottom: 15px;'>USER LOGIN</h3>", unsafe_allow_html=True)
 
         username_input = st.text_input("Username", key="user_in")
         
