@@ -22,7 +22,7 @@ def init_db():
     with sqlite3.connect(DB_NAME, check_same_thread=False) as conn:
         cursor = conn.cursor()
         
-        # 1. Users Table
+        # 1. Siguraduhing malinis at tama ang Users Table schema
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -46,14 +46,14 @@ def init_db():
         """)
         conn.commit()
 
-        # 3. Automatic Default Account para hindi mawala
+        # 3. Automatic Default Account
         cursor.execute("SELECT id FROM users WHERE username = 'admin'")
         if not cursor.fetchone():
-            pass_hash, salt_hex = hash_password("admin123")
+            p_hash, s_hex = hash_password("admin123")
             cursor.execute("""
                 INSERT INTO users (username, password_hash, salt)
                 VALUES (?, ?, ?)
-            """, ("admin", pass_hash, salt_hex))
+            """, ("admin", p_hash, s_hex))
             conn.commit()
 
 
