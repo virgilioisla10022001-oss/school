@@ -1,3 +1,4 @@
+import base64
 import streamlit as st
 from database import init_db, register_user, verify_user
 
@@ -22,7 +23,7 @@ st.markdown("""
     div[data-testid="stToolbar"] {display:none !important;}
     
     .block-container {
-        padding-top: 2rem !important;
+        padding-top: 1.5rem !important;
         max-width: 100% !important;
     }
 
@@ -62,13 +63,13 @@ st.markdown("""
         font-size: 12px !important;
     }
 
-    /* CSS para sa auto-adjusting/responsive malaking logo */
-    .responsive-logo {
+    /* CSS para sa SAGAD AT RESPONSIVE na Logo */
+    .responsive-logo-max {
         display: block;
         margin-left: auto;
         margin-right: auto;
-        max-width: 100%;
-        width: 280px; /* Pwedeng lakihan tulad ng 300px o 350px depende sa gustong laki */
+        width: 100%;
+        max-width: 450px; /* Eto ang sagad na laki sa desktop */
         height: auto;
         object-fit: contain;
     }
@@ -77,7 +78,7 @@ st.markdown("""
 
 # Header Title Center Aligned
 st.markdown("<h1 style='text-align: center; color: white; font-size: 24px; font-weight: bold;'>🛒 DELA CRUZ STORE INVENTORY MANAGEMENT SYSTEM</h1>", unsafe_allow_html=True)
-st.markdown("<hr style='border: 1px solid rgba(255,255,255,0.3); margin-top: 10px; margin-bottom: 30px;'>", unsafe_allow_html=True)
+st.markdown("<hr style='border: 1px solid rgba(255,255,255,0.3); margin-top: 10px; margin-bottom: 25px;'>", unsafe_allow_html=True)
 
 # Session States
 if "logged_in" not in st.session_state:
@@ -91,7 +92,7 @@ if not st.session_state.logged_in:
     
     # 1. REGISTER PAGE (Centered)
     if st.session_state.page == "register":
-        _, center_col, _ = st.columns([1.2, 1.6, 1.2])
+        _, center_col, _ = st.columns([1, 1.8, 1])
         with center_col:
             st.markdown("<h3 style='text-align: center; color: white; font-weight: bold; margin-bottom: 5px;'>CREATE ACCOUNT</h3>", unsafe_allow_html=True)
             st.markdown("<div style='text-align: center; font-size: 45px; margin-bottom: 15px;'>📝</div>", unsafe_allow_html=True)
@@ -121,29 +122,27 @@ if not st.session_state.logged_in:
 
     # 2. LOGIN PAGE (Centered Stacked Layout)
     else:
-        _, center_col, _ = st.columns([1.2, 1.6, 1.2])
+        # Mas pinalapad ang center column para kasya ang mas malaking logo
+        _, center_col, _ = st.columns([1, 1.8, 1])
         with center_col:
-            # Responsive at Malaking Logo Center
+            # Sagad na Logo Center
             try:
-                import base64
-                
-                # I-convert ang imahe para direktang ma-render sa responsive HTML tag
                 def get_image_base64(path):
                     with open(path, "rb") as img_file:
                         return base64.b64encode(img_file.read()).decode()
                 
                 img_data = get_image_base64("ge.png")
                 st.markdown(
-                    f'<div style="text-align: center;">'
-                    f'<img src="data:image/png;base64,{img_data}" class="responsive-logo">'
+                    f'<div style="text-align: center; margin-bottom: 15px;">'
+                    f'<img src="data:image/png;base64,{img_data}" class="responsive-logo-max">'
                     f'</div>', 
                     unsafe_allow_html=True
                 )
             except Exception:
-                # Fallback kapag walang ge.png
+                # Fallback kapag hindi nabasa ang ge.png
                 st.markdown("<div style='text-align: center; font-size: 80px; margin-bottom: 10px;'>👤</div>", unsafe_allow_html=True)
 
-            st.markdown("<h3 style='text-align: center; color: white; font-weight: bold; margin-top: 10px; margin-bottom: 20px;'>USER LOGIN</h3>", unsafe_allow_html=True)
+            st.markdown("<h3 style='text-align: center; color: white; font-weight: bold; margin-top: 5px; margin-bottom: 20px;'>USER LOGIN</h3>", unsafe_allow_html=True)
 
             username_input = st.text_input("Username", key="user_in")
             
