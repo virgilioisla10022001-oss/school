@@ -16,7 +16,7 @@ st.set_page_config(
 # Initialize Database
 init_db()
 
-# Custom CSS
+# Custom CSS with Background Image (ge.png)
 st.markdown("""
     <style>
     #MainMenu {visibility: hidden !important;}
@@ -24,7 +24,11 @@ st.markdown("""
     footer {visibility: hidden !important; display: none !important;}
     
     .stApp {
-        background: linear-gradient(rgba(0, 30, 70, 0.9), rgba(0, 30, 70, 0.9));
+        background: linear-gradient(rgba(0, 30, 70, 0.85), rgba(0, 30, 70, 0.85)), url("ge.png");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
         color: white;
     }
 
@@ -51,17 +55,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- LOGO AT HEADER ---
-col_logo, col_title = st.columns([1, 5])
-with col_logo:
-    try:
-        st.image("ge.png", width=90)
-    except:
-        st.write("Logo (ge.png)")
-
-with col_title:
-    st.markdown("<h1 style='color: white; font-size: 24px; font-weight: bold; margin-top: 15px;'>🛒 DELA CRUZ STORE INVENTORY MANAGEMENT SYSTEM</h1>", unsafe_allow_html=True)
-
+st.markdown("<h1 style='text-align: center; color: white; font-size: 26px; font-weight: bold;'>🛒 DELA CRUZ STORE INVENTORY MANAGEMENT SYSTEM</h1>", unsafe_allow_html=True)
 st.markdown("<hr style='border: 1px solid rgba(255,255,255,0.3); margin-top: 5px; margin-bottom: 25px;'>", unsafe_allow_html=True)
 
 if "logged_in" not in st.session_state:
@@ -233,12 +227,11 @@ else:
 
             st.markdown("<hr style='border: 1px solid rgba(255,255,255,0.2); margin: 20px 0;'>", unsafe_allow_html=True)
             
-            # --- DELETE PRODUCT SECTION (GAMIT ANG RADIO BUTTONS / MGA BILOG) ---
+            # --- DELETE PRODUCT SECTION ---
             st.markdown("#### 🗑️ Delete Product")
             if products:
                 prod_delete_options = {f"ID: {p[0]} | {p[1]} ({p[2]})": p[0] for p in products}
-                # Dito ginamit ang st.radio para may mga bilog na pagpipilian
-                selected_del_label = st.radio("Pumili ng Produktong Buburahin", options=list(prod_delete_options.keys()))
+                selected_del_label = st.selectbox("Pumili ng Produktong Buburahin", options=list(prod_delete_options.keys()))
                 
                 if st.button("Delete Selected Product", use_container_width=True):
                     del_id = prod_delete_options[selected_del_label]
