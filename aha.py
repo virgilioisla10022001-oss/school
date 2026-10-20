@@ -34,13 +34,14 @@ st.markdown("""
         margin: auto !important;
     }
 
-    /* CSS Alignment para katabi at pantay ang logo sa title */
-    .header-container {
+    /* CSS para sa iisang line at dikit na logo at title */
+    .top-header-wrapper {
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 20px;
-        margin-bottom: 10px;
+        gap: 15px;
+        margin-top: 10px;
+        margin-bottom: 5px;
     }
 
     div.stButton > button {
@@ -60,20 +61,27 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- PAMAGAT AT MAS PINALAKING LOGO NA KATABI MISMO NITO ---
-col_title, col_logo = st.columns([3.5, 1])
+# --- LOGO AT TITLE SA IISANG LINE AT MAGKATABI ---
+st.markdown("""
+    <div class="top-header-wrapper">
+        <img src="app/static/ge.png" width="90" style="vertical-align: middle;">
+        <h1 style='color: white; font-size: 24px; font-weight: bold; margin: 0;'>🛒 DELA CRUZ STORE INVENTORY MANAGEMENT SYSTEM</h1>
+    </div>
+""", unsafe_allow_html=True)
 
-with col_title:
-    st.markdown("<h1 style='color: white; font-size: 26px; font-weight: bold; margin-top: 20px;'>🛒 DELA CRUZ STORE INVENTORY MANAGEMENT SYSTEM</h1>", unsafe_allow_html=True)
-
-with col_logo:
+# Alternatibong paraan kung sakaling hindi lumitaw ang image sa HTML tag sa ibabaw, gamitin natin ang Streamlit columns na naka-dikit:
+# (Para sigurado at madaling basahin ng Streamlit ang local file)
+st.markdown("<br>", unsafe_allow_html=True)
+col_l, col_t = st.columns([0.8, 4.5])
+with col_l:
     try:
-        # Mas pinalaki sa 220px at nakatabi mismo sa pamagat
-        st.image("ge.png", width=220)
+        st.image("ge.png", width=95)
     except:
         pass
+with col_t:
+    st.markdown("<h2 style='color: white; font-size: 23px; font-weight: bold; margin-top: 15px;'>🛒 DELA CRUZ STORE INVENTORY MANAGEMENT SYSTEM</h2>", unsafe_allow_html=True)
 
-st.markdown("<hr style='border: 1px solid rgba(255,255,255,0.3); margin-top: 10px; margin-bottom: 25px;'>", unsafe_allow_html=True)
+st.markdown("<hr style='border: 1px solid rgba(255,255,255,0.3); margin-top: 5px; margin-bottom: 25px;'>", unsafe_allow_html=True)
 
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
