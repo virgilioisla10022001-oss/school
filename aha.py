@@ -134,7 +134,7 @@ if not st.session_state.logged_in:
             col_img, col_text = st.columns([0.5, 1.5])
             with col_img:
                 try:
-                    st.image("ge.png", width=500)
+                    st.image("ge.png", width=700)
                 except:
                     pass
             with col_text:
