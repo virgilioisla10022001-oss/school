@@ -68,7 +68,7 @@ if "page" not in st.session_state:
     st.session_state.page = "login"
 
 if not st.session_state.logged_in:
-    _, col_center, _ = st.columns([1, 1.5, 1])
+    _, col_center, _ = st.columns([0.6, 2.2, 0.6])
     with col_center:
         
         if st.session_state.page == "register":
@@ -130,15 +130,15 @@ if not st.session_state.logged_in:
                 st.rerun()
 
         else:
-            # --- LOGO SA KALIWA AT USER LOGIN SA KANAN (MAGKATABI) ---
-            col_img, col_text = st.columns([0.5, 1.5])
+            # --- NAPAKALAKING LOGO SA KALIWA (WIDTH = 280) AT USER LOGIN SA KANAN ---
+            col_img, col_text = st.columns([2.0, 1.8])
             with col_img:
                 try:
-                    st.image("ge.png", width=700)
+                    st.image("ge.png", width=280)
                 except:
                     pass
             with col_text:
-                st.markdown("<h3 style='color: white; margin: 0; padding-top: 5px; text-align: left;'>USER LOGIN</h3>", unsafe_allow_html=True)
+                st.markdown("<h2 style='color: white; margin: 0; padding-top: 75px; text-align: left; font-weight: bold;'>USER LOGIN</h2>", unsafe_allow_html=True)
             
             username_input = st.text_input("Username", placeholder="I-type ang username")
             password_input = st.text_input("Password", type="password", placeholder="I-type ang password")
