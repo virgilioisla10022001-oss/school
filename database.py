@@ -7,9 +7,8 @@ DB_NAME = "inventory.db"
 
 def init_db():
     """I-in-initialize ang database tables para sa users at inventory products."""
-    with sqlite3.connect(DB_NAME) as conn:
+    with sqlite3.connect(DB_NAME, check_same_thread=False) as conn:
         cursor = conn.cursor()
-        # 1. Table para sa User Authentication
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -19,7 +18,6 @@ def init_db():
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
-        # 2. Table para sa Inventory Products
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS products (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -34,10 +32,8 @@ def init_db():
 
 
 def hash_password(password: str, salt: bytes = None) -> tuple[str, str]:
-    """Nag-ha-hash ng password gamit ang PBKDF2 (SHA-256) na may salt."""
     if salt is None:
         salt = os.urandom(16)
-    
     hashed = hashlib.pbkdf2_hmac(
         'sha256',
         password.encode('utf-8'),
@@ -47,10 +43,7 @@ def hash_password(password: str, salt: bytes = None) -> tuple[str, str]:
     return hashed.hex(), salt.hex()
 
 
-# --- USER AUTHENTICATION FUNCTIONS ---
-
 def register_user(username: str, password: str) -> bool:
-    """Nag-rerehistro ng bagong user."""
     init_db()
     username_clean = username.strip().lower()
     
@@ -60,7 +53,7 @@ def register_user(username: str, password: str) -> bool:
     password_hash, salt_hex = hash_password(password)
 
     try:
-        with sqlite3.connect(DB_NAME) as conn:
+        with sqlite3.connect(DB_NAME, check_same_thread=False) as conn:
             cursor = conn.cursor()
             cursor.execute("""
                 INSERT INTO users (username, password_hash, salt)
@@ -76,12 +69,11 @@ def register_user(username: str, password: str) -> bool:
 
 
 def verify_user(username: str, password: str) -> bool:
-    """Nag-ve-verify ng username at password."""
     init_db()
     username_clean = username.strip().lower()
 
     try:
-        with sqlite3.connect(DB_NAME) as conn:
+        with sqlite3.connect(DB_NAME, check_same_thread=False) as conn:
             cursor = conn.cursor()
             cursor.execute("""
                 SELECT password_hash, salt FROM users WHERE username = ?
@@ -101,13 +93,10 @@ def verify_user(username: str, password: str) -> bool:
         return False
 
 
-# --- INVENTORY MANAGEMENT FUNCTIONS ---
-
 def add_product(product_name: str, category: str, quantity: int, price: float) -> bool:
-    """Nagdaragdag ng bagong produkto sa inventory."""
     init_db()
     try:
-        with sqlite3.connect(DB_NAME) as conn:
+        with sqlite3.connect(DB_NAME, check_same_thread=False) as conn:
             cursor = conn.cursor()
             cursor.execute("""
                 INSERT INTO products (product_name, category, quantity, price)
@@ -121,10 +110,9 @@ def add_product(product_name: str, category: str, quantity: int, price: float) -
 
 
 def get_all_products():
-    """Kinukuha ang lahat ng mga produkto mula sa database."""
     init_db()
     try:
-        with sqlite3.connect(DB_NAME) as conn:
+        with sqlite3.connect(DB_NAME, check_same_thread=False) as conn:
             cursor = conn.cursor()
             cursor.execute("SELECT id, product_name, category, quantity, price, date_added FROM products")
             return cursor.fetchall()
@@ -134,10 +122,9 @@ def get_all_products():
 
 
 def update_product(product_id: int, product_name: str, category: str, quantity: int, price: float) -> bool:
-    """Binabago ang detalye ng isang produkto gamit ang ID nito."""
     init_db()
     try:
-        with sqlite3.connect(DB_NAME) as conn:
+        with sqlite3.connect(DB_NAME, check_same_thread=False) as conn:
             cursor = conn.cursor()
             cursor.execute("""
                 UPDATE products 
@@ -152,10 +139,9 @@ def update_product(product_id: int, product_name: str, category: str, quantity: 
 
 
 def delete_product(product_id: int) -> bool:
-    """Nagbubura ng produkto mula sa database gamit ang ID nito."""
     init_db()
     try:
-        with sqlite3.connect(DB_NAME) as conn:
+        with sqlite3.connect(DB_NAME, check_same_thread=False) as conn:
             cursor = conn.cursor()
             cursor.execute("DELETE FROM products WHERE id = ?", (product_id,))
             conn.commit()
