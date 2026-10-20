@@ -51,18 +51,13 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- PAMAGAT SA KALIWA AT MALAKING LOGO SA KANAN SA IISANG LINE ---
-col_title, col_logo = st.columns([0.78, 0.22], gap="small")
-
-with col_title:
-    st.markdown("<h1 style='color: white; font-size: 23px; font-weight: bold; margin-top: 15px;'>🛒 DELA CRUZ STORE INVENTORY MANAGEMENT SYSTEM</h1>", unsafe_allow_html=True)
-
-with col_logo:
-    try:
-        # Pinalaki ang logo sa kanang bahagi
-        st.image("ge.png", width=120)
-    except:
-        pass
+# --- LOGO NA KATABI MISMO NG TITLE SA KANAN ---
+st.markdown("""
+    <div style="display: flex; align-items: center; justify-content: center; gap: 15px; margin-top: 10px; margin-bottom: 10px;">
+        <h1 style="color: white; font-size: 23px; font-weight: bold; margin: 0; padding: 0;">🛒 DELA CRUZ STORE INVENTORY MANAGEMENT SYSTEM</h1>
+        <img src="app/static/ge.png" width="75" style="vertical-align: middle;">
+    </div>
+""", unsafe_allow_html=True)
 
 st.markdown("<hr style='border: 1px solid rgba(255,255,255,0.3); margin-top: 10px; margin-bottom: 25px;'>", unsafe_allow_html=True)
 
