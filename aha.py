@@ -10,7 +10,7 @@ st.set_page_config(
 # I-initialize ang database habang naglo-load ang app
 init_db()
 
-# Custom CSS para sa Locked Screen at Non-Scrollable Layout
+# Custom CSS para sa nakafix at hindi gumagalaw/nagse-scroll na screen
 st.markdown("""
     <style>
     /* Itago ang default Streamlit elements */
@@ -22,17 +22,19 @@ st.markdown("""
     div[data-testid="stHeader"] {display:none !important;}
     div[data-testid="stToolbar"] {display:none !important;}
     
-    /* Lock ang buong screen para hindi mag-scroll gamit ang mouse */
-    html, body, [data-testid="stAppViewContainer"] {
+    /* Lock ang buong screen at pigilan ang pag-scroll ng mouse */
+    html, body, [data-testid="stAppViewContainer"], .main {
         overflow: hidden !important;
         height: 100vh !important;
         max-height: 100vh !important;
+        position: fixed !important;
+        width: 100% !important;
     }
 
     .block-container {
-        padding-top: 1rem !important;
-        padding-bottom: 1rem !important;
-        max-width: 450px !important;
+        padding-top: 0.8rem !important;
+        padding-bottom: 0.8rem !important;
+        max-width: 420px !important;
         width: 100% !important;
         margin: auto !important;
     }
@@ -42,12 +44,13 @@ st.markdown("""
         color: white;
     }
 
-    /* Input styling */
+    /* Input styling para sakto sa screen */
     input[type="text"], input[type="password"] {
         background-color: #ffffff !important;
         color: #000000 !important;
         border-radius: 6px !important;
-        font-size: 14px !important;
+        font-size: 13px !important;
+        height: 35px !important;
     }
     
     div[data-baseweb="input"] {
@@ -62,9 +65,9 @@ st.markdown("""
         border: 1px solid #ffffff !important;
         border-radius: 6px !important;
         font-weight: bold !important;
-        padding: 6px 10px !important;
+        padding: 5px 10px !important;
         width: 100%;
-        font-size: 14px !important;
+        font-size: 13px !important;
     }
     
     div.stButton > button:hover {
@@ -74,14 +77,14 @@ st.markdown("""
 
     div[data-testid="stCheckbox"] label span {
         color: white !important;
-        font-size: 12px !important;
+        font-size: 11px !important;
     }
     </style>
 """, unsafe_allow_html=True)
 
 # Header Title Center Aligned
-st.markdown("<h1 style='text-align: center; color: white; font-size: 18px; font-weight: bold; margin-bottom: 2px;'>🛒 DELA CRUZ STORE INVENTORY MANAGEMENT SYSTEM</h1>", unsafe_allow_html=True)
-st.markdown("<hr style='border: 1px solid rgba(255,255,255,0.3); margin-top: 2px; margin-bottom: 10px;'>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: white; font-size: 16px; font-weight: bold; margin-bottom: 2px;'>🛒 DELA CRUZ STORE INVENTORY MANAGEMENT SYSTEM</h1>", unsafe_allow_html=True)
+st.markdown("<hr style='border: 1px solid rgba(255,255,255,0.3); margin-top: 2px; margin-bottom: 8px;'>", unsafe_allow_html=True)
 
 # Session States
 if "logged_in" not in st.session_state:
@@ -95,14 +98,14 @@ if not st.session_state.logged_in:
     
     # 1. REGISTER PAGE
     if st.session_state.page == "register":
-        st.markdown("<h3 style='text-align: center; color: white; font-weight: bold; margin-bottom: 2px;'>CREATE ACCOUNT</h3>", unsafe_allow_html=True)
-        st.markdown("<div style='text-align: center; font-size: 35px; margin-bottom: 5px;'>📝</div>", unsafe_allow_html=True)
+        st.markdown("<h3 style='text-align: center; color: white; font-size: 15px; font-weight: bold; margin-bottom: 2px;'>CREATE ACCOUNT</h3>", unsafe_allow_html=True)
+        st.markdown("<div style='text-align: center; font-size: 30px; margin-bottom: 5px;'>📝</div>", unsafe_allow_html=True)
 
         reg_user = st.text_input("New Username", key="reg_user")
         reg_pass = st.text_input("New Password", type="password", key="reg_pass")
         reg_pass_conf = st.text_input("Confirm Password", type="password", key="reg_pass_conf")
 
-        st.markdown("<div style='margin-top: 5px;'></div>", unsafe_allow_html=True)
+        st.markdown("<div style='margin-top: 4px;'></div>", unsafe_allow_html=True)
         if st.button("Register", use_container_width=True):
             if reg_user and reg_pass and reg_pass_conf:
                 if reg_pass == reg_pass_conf:
@@ -121,17 +124,17 @@ if not st.session_state.logged_in:
             st.session_state.page = "login"
             st.rerun()
 
-    # 2. LOGIN PAGE (Fixed & Locked Screen)
+    # 2. LOGIN PAGE (Fixed & Locked)
     else:
-        # LOGO DISPLAY (Laki ng logo ay fit na sa locked screen)
+        # LOGO DISPLAY
         try:
             col1, col2, col3 = st.columns([0.1, 0.8, 0.1])
             with col2:
                 st.image("ge.png", use_container_width=True)
         except:
-            st.markdown("<div style='text-align: center; font-size: 50px; margin-bottom: 5px;'>👤</div>", unsafe_allow_html=True)
+            st.markdown("<div style='text-align: center; font-size: 45px; margin-bottom: 5px;'>👤</div>", unsafe_allow_html=True)
 
-        st.markdown("<h3 style='text-align: center; color: white; font-weight: bold; margin-top: 2px; margin-bottom: 10px;'>USER LOGIN</h3>", unsafe_allow_html=True)
+        st.markdown("<h3 style='text-align: center; color: white; font-size: 15px; font-weight: bold; margin-top: 2px; margin-bottom: 8px;'>USER LOGIN</h3>", unsafe_allow_html=True)
 
         username_input = st.text_input("Username", key="user_in")
         
@@ -140,7 +143,7 @@ if not st.session_state.logged_in:
         password_input = st.text_input("Password", type=pwd_type, key="pass_in")
         st.checkbox("Show Password", key="show_pwd_check")
 
-        st.markdown("<div style='margin-top: 5px;'></div>", unsafe_allow_html=True)
+        st.markdown("<div style='margin-top: 4px;'></div>", unsafe_allow_html=True)
         
         if st.button("LOGIN", use_container_width=True, key="login_btn"):
             if username_input and password_input:
@@ -153,7 +156,7 @@ if not st.session_state.logged_in:
             else:
                 st.warning("Please enter both username and password!")
 
-        st.markdown("<div style='margin-top: 5px;'></div>", unsafe_allow_html=True)
+        st.markdown("<div style='margin-top: 4px;'></div>", unsafe_allow_html=True)
 
         # Bottom Buttons
         b1, b2 = st.columns(2)
