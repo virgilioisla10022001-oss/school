@@ -51,16 +51,18 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- LOGO AT PAMAGAT SA TABI NG ISA'T ISA SA ITAAS ---
-col_logo, col_title = st.columns([1, 6])
-with col_logo:
-    try:
-        st.image("ge.png", width=100) # Logo sa tabi ng title
-    except:
-        pass
+# --- PAMAGAT SA KALIWA AT MALAKING LOGO SA KANANG BAHAGI ---
+col_title, col_logo = st.columns([5, 1.5])
 
 with col_title:
-    st.markdown("<h1 style='color: white; font-size: 24px; font-weight: bold; margin-top: 20px;'>🛒 DELA CRUZ STORE INVENTORY MANAGEMENT SYSTEM</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 style='color: white; font-size: 24px; font-weight: bold; margin-top: 25px;'>🛒 DELA CRUZ STORE INVENTORY MANAGEMENT SYSTEM</h1>", unsafe_allow_html=True)
+
+with col_logo:
+    try:
+        # Pinalaki ang logo sa kanang bahagi
+        st.image("ge.png", width=150)
+    except:
+        pass
 
 st.markdown("<hr style='border: 1px solid rgba(255,255,255,0.3); margin-top: 5px; margin-bottom: 25px;'>", unsafe_allow_html=True)
 
