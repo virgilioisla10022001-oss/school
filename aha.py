@@ -61,6 +61,17 @@ st.markdown("""
         color: white !important;
         font-size: 12px !important;
     }
+
+    /* CSS para sa auto-adjusting/responsive malaking logo */
+    .responsive-logo {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        max-width: 100%;
+        width: 280px; /* Pwedeng lakihan tulad ng 300px o 350px depende sa gustong laki */
+        height: auto;
+        object-fit: contain;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -80,7 +91,7 @@ if not st.session_state.logged_in:
     
     # 1. REGISTER PAGE (Centered)
     if st.session_state.page == "register":
-        _, center_col, _ = st.columns([1.5, 1.2, 1.5])
+        _, center_col, _ = st.columns([1.2, 1.6, 1.2])
         with center_col:
             st.markdown("<h3 style='text-align: center; color: white; font-weight: bold; margin-bottom: 5px;'>CREATE ACCOUNT</h3>", unsafe_allow_html=True)
             st.markdown("<div style='text-align: center; font-size: 45px; margin-bottom: 15px;'>📝</div>", unsafe_allow_html=True)
@@ -110,15 +121,27 @@ if not st.session_state.logged_in:
 
     # 2. LOGIN PAGE (Centered Stacked Layout)
     else:
-        _, center_col, _ = st.columns([1.5, 1.2, 1.5])
+        _, center_col, _ = st.columns([1.2, 1.6, 1.2])
         with center_col:
-            # Logo Center
+            # Responsive at Malaking Logo Center
             try:
-                col_l, col_m, col_r = st.columns([1, 2, 1])
-                with col_m:
-                    st.image("ge.png", width=700)
-            except:
-                st.markdown("<div style='text-align: center; font-size: 60px; margin-bottom: 10px;'>👤</div>", unsafe_allow_html=True)
+                import base64
+                
+                # I-convert ang imahe para direktang ma-render sa responsive HTML tag
+                def get_image_base64(path):
+                    with open(path, "rb") as img_file:
+                        return base64.b64encode(img_file.read()).decode()
+                
+                img_data = get_image_base64("ge.png")
+                st.markdown(
+                    f'<div style="text-align: center;">'
+                    f'<img src="data:image/png;base64,{img_data}" class="responsive-logo">'
+                    f'</div>', 
+                    unsafe_allow_html=True
+                )
+            except Exception:
+                # Fallback kapag walang ge.png
+                st.markdown("<div style='text-align: center; font-size: 80px; margin-bottom: 10px;'>👤</div>", unsafe_allow_html=True)
 
             st.markdown("<h3 style='text-align: center; color: white; font-weight: bold; margin-top: 10px; margin-bottom: 20px;'>USER LOGIN</h3>", unsafe_allow_html=True)
 
