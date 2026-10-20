@@ -34,16 +34,6 @@ st.markdown("""
         margin: auto !important;
     }
 
-    /* Container para sa iisang line, nakadikit, at centered na logo at title */
-    .header-container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 15px;
-        margin-top: 5px;
-        margin-bottom: 0px;
-    }
-
     div.stButton > button {
         background-color: #004080 !important;
         color: white !important;
@@ -61,20 +51,17 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- ISANG LINE NA LANG NA MAY KADIKIT NA LOGO AT TITLE ---
-st.markdown("""
-    <div class="header-container">
-        <img src="app/static/ge.png" width="85" style="border-radius: 5px;">
-        <h1 style='color: white; font-size: 24px; font-weight: bold; margin: 0;'>🛒 DELA CRUZ STORE INVENTORY MANAGEMENT SYSTEM</h1>
-    </div>
-""", unsafe_allow_html=True)
-
-# Kung sakaling hindi lumitaw ang larawan gamit ang HTML base path sa itaas sa iyong local Streamlit, 
-# ginamit natin ang Streamlit native image sa loob ng tight columns para iisa at dikit din:
+# --- ISANG LINE NA MAGKATABI ANG LOGO AT TITLE ---
 col_logo, col_title = st.columns([0.15, 0.85], gap="small")
-# (Tandaan: Kung gumagana na ang sa taas, maaari mong burahin ang block sa ibaba. Pero para sigurado, ito ang eksaktong gagawa ng iisang line.)
+with col_logo:
+    try:
+        st.image("ge.png", width=80)
+    except:
+        pass
+with col_title:
+    st.markdown("<h1 style='color: white; font-size: 23px; font-weight: bold; margin-top: 12px;'>🛒 DELA CRUZ STORE INVENTORY MANAGEMENT SYSTEM</h1>", unsafe_allow_html=True)
 
-st.markdown("<hr style='border: 1px solid rgba(255,255,255,0.3); margin-top: 10px; margin-bottom: 25px;'>", unsafe_allow_html=True)
+st.markdown("<hr style='border: 1px solid rgba(255,255,255,0.3); margin-top: 5px; margin-bottom: 25px;'>", unsafe_allow_html=True)
 
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
