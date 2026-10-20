@@ -1,165 +1,131 @@
 import sqlite3
-import hashlib
-import os
-
-DB_NAME = "inventory.db"
-
-
-def hash_password(password: str, salt: bytes = None) -> tuple[str, str]:
-    if salt is None:
-        salt = os.urandom(16)
-    hashed = hashlib.pbkdf2_hmac(
-        'sha256',
-        password.encode('utf-8'),
-        salt,
-        100000
-    )
-    return hashed.hex(), salt.hex()
-
 
 def init_db():
-    """I-in-initialize ang database at awtomatikong gagawa ng default admin account."""
-    with sqlite3.connect(DB_NAME, check_same_thread=False) as conn:
-        cursor = conn.cursor()
-        
-        # 1. Siguraduhing malinis at tama ang Users Table schema
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                username TEXT UNIQUE NOT NULL,
-                password_hash TEXT NOT NULL,
-                salt TEXT NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        """)
-        
-        # 2. Products Table
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS products (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                product_name TEXT NOT NULL,
-                category TEXT,
-                quantity INTEGER DEFAULT 0,
-                price REAL DEFAULT 0.0,
-                date_added TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        """)
-        conn.commit()
+    conn = sqlite3.connect("store_inventory.db")
+    cursor = conn.cursor()
+    # Users Table
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            fullname TEXT,
+            username TEXT UNIQUE,
+            password TEXT,
+            email TEXT,
+            birthday TEXT,
+            contact TEXT
+        )
+    """)
+    # Products Table
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS products (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            product_name TEXT,
+            brand TEXT,
+            category TEXT,
+            quantity INTEGER,
+            price REAL,
+            expiry_date TEXT,
+            date_added TEXT
+        )
+    """)
+    # Retail Logs Table (Sales)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS retail_logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            product_name TEXT,
+            brand TEXT,
+            quantity_sold INTEGER,
+            date_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    # Reports Table
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS reports (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            report_date TEXT,
+            file_path TEXT
+        )
+    """)
+    conn.commit()
+    conn.close()
 
-        # 3. Automatic Default Account
-        cursor.execute("SELECT id FROM users WHERE username = 'admin'")
-        if not cursor.fetchone():
-            p_hash, s_hex = hash_password("admin123")
-            cursor.execute("""
-                INSERT INTO users (username, password_hash, salt)
-                VALUES (?, ?, ?)
-            """, ("admin", p_hash, s_hex))
-            conn.commit()
-
-
-def register_user(username: str, password: str) -> bool:
-    init_db()
-    username_clean = username.strip().lower()
-    
-    if not username_clean or not password:
-        return False
-
-    password_hash, salt_hex = hash_password(password)
-
+def register_user(fullname, username, password, email, birthday, contact):
     try:
-        with sqlite3.connect(DB_NAME, check_same_thread=False) as conn:
-            cursor = conn.cursor()
-            cursor.execute("""
-                INSERT INTO users (username, password_hash, salt)
-                VALUES (?, ?, ?)
-            """, (username_clean, password_hash, salt_hex))
-            conn.commit()
-            return True
+        conn = sqlite3.connect("store_inventory.db")
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO users (fullname, username, password, email, birthday, contact) VALUES (?, ?, ?, ?, ?, ?)",
+                       (fullname, username, password, email, birthday, contact))
+        conn.commit()
+        conn.close()
+        return True
     except sqlite3.IntegrityError:
         return False
-    except Exception as e:
-        print(f"Error registering user: {e}")
-        return False
 
+def verify_user(username, password):
+    conn = sqlite3.connect("store_inventory.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM users WHERE username = ? AND password = ?", (username, password))
+    user = cursor.fetchone()
+    conn.close()
+    return user
 
-def verify_user(username: str, password: str) -> bool:
-    init_db()
-    username_clean = username.strip().lower()
+def reset_password(username, email, new_password):
+    conn = sqlite3.connect("store_inventory.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM users WHERE username = ? AND email = ?", (username, email))
+    user = cursor.fetchone()
+    if user:
+        cursor.execute("UPDATE users SET password = ? WHERE username = ?", (new_password, username))
+        conn.commit()
+        conn.close()
+        return True
+    conn.close()
+    return False
 
-    try:
-        with sqlite3.connect(DB_NAME, check_same_thread=False) as conn:
-            cursor = conn.cursor()
-            cursor.execute("""
-                SELECT password_hash, salt FROM users WHERE username = ?
-            """, (username_clean,))
-            result = cursor.fetchone()
-
-        if not result:
-            return False
-
-        stored_hash, stored_salt_hex = result
-        stored_salt = bytes.fromhex(stored_salt_hex)
-        input_hash, _ = hash_password(password, stored_salt)
-
-        return input_hash == stored_hash
-    except Exception as e:
-        print(f"Error verifying user: {e}")
-        return False
-
-
-def add_product(product_name: str, category: str, quantity: int, price: float) -> bool:
-    init_db()
-    try:
-        with sqlite3.connect(DB_NAME, check_same_thread=False) as conn:
-            cursor = conn.cursor()
-            cursor.execute("""
-                INSERT INTO products (product_name, category, quantity, price)
-                VALUES (?, ?, ?, ?)
-            """, (product_name.strip(), category.strip(), quantity, price))
-            conn.commit()
-            return True
-    except Exception as e:
-        print(f"Error adding product: {e}")
-        return False
-
+def add_product(product_name, brand, category, quantity, price, expiry_date, date_added):
+    conn = sqlite3.connect("store_inventory.db")
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO products (product_name, brand, category, quantity, price, expiry_date, date_added) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                   (product_name, brand, category, quantity, price, expiry_date, date_added))
+    conn.commit()
+    conn.close()
 
 def get_all_products():
-    init_db()
-    try:
-        with sqlite3.connect(DB_NAME, check_same_thread=False) as conn:
-            cursor = conn.cursor()
-            cursor.execute("SELECT id, product_name, category, quantity, price, date_added FROM products")
-            return cursor.fetchall()
-    except Exception as e:
-        print(f"Error getting products: {e}")
-        return []
+    conn = sqlite3.connect("store_inventory.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM products")
+    rows = cursor.fetchall()
+    conn.close()
+    return rows
 
+def update_product(prod_id, product_name, brand, category, quantity, price, expiry_date):
+    conn = sqlite3.connect("store_inventory.db")
+    cursor = conn.cursor()
+    cursor.execute("""
+        UPDATE products SET product_name = ?, brand = ?, category = ?, quantity = ?, price = ?, expiry_date = ?
+        WHERE id = ?
+    """, (product_name, brand, category, quantity, price, expiry_date, prod_id))
+    conn.commit()
+    conn.close()
 
-def update_product(product_id: int, product_name: str, category: str, quantity: int, price: float) -> bool:
-    init_db()
-    try:
-        with sqlite3.connect(DB_NAME, check_same_thread=False) as conn:
-            cursor = conn.cursor()
-            cursor.execute("""
-                UPDATE products 
-                SET product_name = ?, category = ?, quantity = ?, price = ?
-                WHERE id = ?
-            """, (product_name.strip(), category.strip(), quantity, price, product_id))
-            conn.commit()
-            return True
-    except Exception as e:
-        print(f"Error updating product: {e}")
-        return False
+def delete_product(prod_id):
+    conn = sqlite3.connect("store_inventory.db")
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM products WHERE id = ?", (prod_id,))
+    conn.commit()
+    conn.close()
 
+def add_retail_log(product_name, brand, qty_sold):
+    conn = sqlite3.connect("store_inventory.db")
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO retail_logs (product_name, brand, quantity_sold) VALUES (?, ?, ?)", (product_name, brand, qty_sold))
+    conn.commit()
+    conn.close()
 
-def delete_product(product_id: int) -> bool:
-    init_db()
-    try:
-        with sqlite3.connect(DB_NAME, check_same_thread=False) as conn:
-            cursor = conn.cursor()
-            cursor.execute("DELETE FROM products WHERE id = ?", (product_id,))
-            conn.commit()
-            return True
-    except Exception as e:
-        print(f"Error deleting product: {e}")
-        return False
+def get_retail_logs():
+    conn = sqlite3.connect("store_inventory.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM retail_logs")
+    rows = cursor.fetchall()
+    conn.close()
+    return rows
