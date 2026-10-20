@@ -3,8 +3,172 @@ import sqlite3
 import pandas as pd
 import streamlit as st
 from datetime import datetime
-from database import init_db, register_user, verify_user, get_connection
 
+# --- DATABASE CONFIGURATION & FUNCTIONS ---
+DB_NAME = "inventory.db"
+
+def get_connection():
+    conn = sqlite3.connect(DB_NAME)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+def hash_password(password):
+    import hashlib
+    return hashlib.sha256(password.encode()).hexdigest()
+
+def init_db():
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    # User Table
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS User (
+            userID INTEGER PRIMARY KEY AUTOINCREMENT,
+            username VARCHAR(40) UNIQUE NOT NULL,
+            password VARCHAR(64) NOT NULL,
+            role VARCHAR(40) NOT NULL,
+            name VARCHAR(40),
+            createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    # Category Table
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS Category (
+            categoryID INTEGER PRIMARY KEY AUTOINCREMENT,
+            name VARCHAR(40) NOT NULL,
+            description VARCHAR(100)
+        )
+    """)
+
+    # Supplier Table
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS Supplier (
+            Supplier_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+            Name VARCHAR(40) NOT NULL,
+            Address VARCHAR(100),
+            phone INTEGER,
+            fax INTEGER,
+            Email VARCHAR(40),
+            other_details VARCHAR(100)
+        )
+    """)
+
+    # Product Table (Kasama ang expiryDate at lowStockLevel)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS Product (
+            productID VARCHAR(40) PRIMARY KEY,
+            name VARCHAR(40) NOT NULL,
+            description VARCHAR(100),
+            categoryID INTEGER,
+            price DECIMAL(10,2),
+            quantity INTEGER,
+            expiryDate DATE,
+            lowStockLevel INTEGER DEFAULT 10,
+            unit VARCHAR(20),
+            supplierID INTEGER,
+            FOREIGN KEY (categoryID) REFERENCES Category(categoryID),
+            FOREIGN KEY (supplierID) REFERENCES Supplier(Supplier_ID)
+        )
+    """)
+
+    # Sales Table
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS Sales (
+            saleID INTEGER PRIMARY KEY AUTOINCREMENT,
+            userID INTEGER,
+            totalAmount DECIMAL(10,2),
+            paymentMethod VARCHAR(40),
+            saleDate DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (userID) REFERENCES User(userID)
+        )
+    """)
+
+    # SaleItem Table
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS SaleItem (
+            saletItemID INTEGER PRIMARY KEY AUTOINCREMENT,
+            saleID INTEGER,
+            productID VARCHAR(40),
+            quantity INTEGER,
+            price DECIMAL(10,2),
+            subtotal DECIMAL(10,2),
+            FOREIGN KEY (saleID) REFERENCES Sales(saleID),
+            FOREIGN KEY (productID) REFERENCES Product(productID)
+        )
+    """)
+
+    # Settings Table
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS Settings (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            storeName VARCHAR(100),
+            address VARCHAR(200),
+            contact VARCHAR(50)
+        )
+    """)
+
+    # Default Admin & Staff Accounts
+    cursor.execute("SELECT COUNT(*) FROM User")
+    if cursor.fetchone()[0] == 0:
+        cursor.execute("INSERT INTO User (username, password, role, name) VALUES (?, ?, ?, ?)", 
+                       ("admin", hash_password("admin123"), "Admin", "System Administrator"))
+        cursor.execute("INSERT INTO User (username, password, role, name) VALUES (?, ?, ?, ?)", 
+                       ("staff", hash_password("staff123"), "Staff", "Store Staff"))
+
+    # Default Store Settings (Quirino Highway, Quezon City)[cite: 2]
+    cursor.execute("SELECT COUNT(*) FROM Settings")
+    if cursor.fetchone()[0] == 0:
+        cursor.execute("INSERT INTO Settings (storeName, address, contact) VALUES (?, ?, ?)",
+                       ("Dela Cruz Sari-Sari Store", "1071 Brgy. Kaligayahan, Quirino Highway, Quezon City, Metro Manila", "09123456789"))
+
+    # Default Categories
+    cursor.execute("SELECT COUNT(*) FROM Category")
+    if cursor.fetchone()[0] == 0:
+        cursor.executemany("INSERT INTO Category (name, description) VALUES (?, ?)", [
+            ("Inumin", "Softdrinks at Juice"),
+            ("Chichirya", "Snacks at Biscuits"),
+            ("Canned Goods", "Sardinas at Meatloaf")
+        ])
+
+    # Default Products (Sample Sari-Sari Store items)
+    cursor.execute("SELECT COUNT(*) FROM Product")
+    if cursor.fetchone()[0] == 0:
+        cursor.executemany("""
+            INSERT INTO Product (productID, name, description, categoryID, price, quantity, expiryDate, lowStockLevel, unit)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, [
+            ("P-001", "Coke Mismo 290ml", "Malamig na softdrinks", 1, 15.0, 50, "2026-12-31", 10, "Bote"),
+            ("P-002", "Piattos Cheese", "Chichirya", 2, 18.0, 5, "2026-10-15", 10, "Pack"),
+            ("P-003", "Mega Sardines", "De lata", 3, 22.0, 8, "2027-06-30", 10, "Can")
+        ])
+
+    conn.commit()
+    conn.close()
+
+def register_user(username, password, role, name=""):
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("INSERT INTO User (username, password, role, name) VALUES (?, ?, ?, ?)",
+                       (username, hash_password(password), role, name))
+        conn.commit()
+        conn.close()
+        return True
+    except sqlite3.IntegrityError:
+        conn.close()
+        return False
+
+def verify_user(username, password):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM User WHERE username = ? AND password = ?", (username, hash_password(password)))
+    user = cursor.fetchone()
+    conn.close()
+    return user
+
+
+# --- STREAMLIT UI & APP CONFIGURATION ---
 st.set_page_config(
     page_title="Dela Cruz Store Inventory Management System",
     page_icon="🛒",
@@ -134,7 +298,7 @@ if not st.session_state.logged_in:
                     st.info("Contact System Administrator.")
 
 else:
-    # DASHBOARD & MAIN NAVIGATION (System Flowchart Modules)[cite: 2]
+    # DASHBOARD & MAIN NAVIGATION
     user = st.session_state.user_info
     st.sidebar.markdown(f"### 👤 Welcome, {user['name'] or user['username']}")
     st.sidebar.markdown(f"**Role:** `{user['role']}`")
@@ -234,16 +398,13 @@ else:
                 total_amount = sale_qty * prod_row['price']
                 cur = conn.cursor()
                 
-                # Insert Sale Record[cite: 2]
                 cur.execute("INSERT INTO Sales (userID, totalAmount, paymentMethod) VALUES (?, ?, ?)",
                             (user['userID'], total_amount, payment_method))
                 sale_id = cur.lastrowid
                 
-                # Insert Sale Item[cite: 2]
                 cur.execute("INSERT INTO SaleItem (saleID, productID, quantity, price, subtotal) VALUES (?, ?, ?, ?, ?)",
                             (sale_id, prod_row['productID'], sale_qty, prod_row['price'], total_amount))
                 
-                # Update Stock Quantity[cite: 2]
                 cur.execute("UPDATE Product SET quantity = quantity - ? WHERE productID = ?",
                             (sale_qty, prod_row['productID']))
                 
@@ -254,7 +415,6 @@ else:
     elif menu == "📋 View Inventory & Alerts":
         st.subheader("📋 Inventory Monitoring & Expiry Checks")
         
-        # Low Stock Alert query[cite: 2]
         st.markdown("### ⚠️ Low Stock Warnings")
         low_df = pd.read_sql_query("SELECT productID, name, quantity, lowStockLevel FROM Product WHERE quantity <= lowStockLevel", conn)
         if not low_df.empty:
@@ -269,54 +429,4 @@ else:
     elif menu == "📈 Generate Reports":
         st.subheader("📈 Inventory & Sales Reports")
         
-        rep_type = st.selectbox("Select Report Type", ["Sales Report", "Complete Inventory Report", "Low Stock Report"])
-        
-        if rep_type == "Sales Report":
-            df_rep = pd.read_sql_query("""
-                SELECT s.saleID as 'Sale ID', u.username as 'Staff', s.totalAmount as 'Total (₱)', 
-                       s.paymentMethod as 'Payment', s.saleDate as 'Date'
-                FROM Sales s
-                LEFT JOIN User u ON s.userID = u.userID
-            """, conn)
-            st.dataframe(df_rep, use_container_width=True)
-            
-        elif rep_type == "Complete Inventory Report":
-            df_rep = pd.read_sql_query("SELECT productID, name, price, quantity, expiryDate FROM Product", conn)
-            st.dataframe(df_rep, use_container_width=True)
-            
-        elif rep_type == "Low Stock Report":
-            df_rep = pd.read_sql_query("SELECT productID, name, quantity, lowStockLevel FROM Product WHERE quantity <= lowStockLevel", conn)
-            st.dataframe(df_rep, use_container_width=True)
-
-    elif menu == "👥 Manage Users":
-        st.subheader("👥 User Account Management")
-        if user['role'] != 'Admin':
-            st.error("Restricted Access: Only Administrators can manage users.")
-        else:
-            df_users = pd.read_sql_query("SELECT userID, username, role, name, createdAt FROM User", conn)
-            st.dataframe(df_users, use_container_width=True)
-
-    elif menu == "⚙️ Settings":
-        st.subheader("⚙️ Store Information Settings[cite: 2]")
-        settings = pd.read_sql_query("SELECT * FROM Settings LIMIT 1", conn).iloc[0]
-        
-        with st.form("settings_form"):
-            s_name = st.text_input("Store Name", value=settings['storeName'])
-            s_addr = st.text_input("Store Address", value=settings['address'])
-            s_contact = st.text_input("Contact Number", value=settings['contact'])
-            
-            if st.form_submit_button("Update Settings"):
-                cur = conn.cursor()
-                cur.execute("UPDATE Settings SET storeName = ?, address = ?, contact = ? WHERE id = ?",
-                            (s_name, s_addr, s_contact, settings['id']))
-                conn.commit()
-                st.success("Store settings updated successfully!")
-                st.rerun()
-
-    st.markdown("<br><br>", unsafe_allow_html=True)
-    if st.sidebar.button("LOGOUT", use_container_width=True):
-        st.session_state.logged_in = False
-        st.session_state.user_info = None
-        st.rerun()
-
-    conn.close()
+        rep_type = st.
